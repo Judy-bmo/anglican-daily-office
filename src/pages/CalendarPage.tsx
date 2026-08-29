@@ -7,6 +7,12 @@ import { resolveLectionary } from '../lib/lectionary'
 import { SEASON_COLORS } from '../lib/theme'
 
 const DOW = ['일', '월', '화', '수', '목', '금', '토']
+
+/** 열 머리글이나 옆칸에 요일이 이미 있으므로 덜어 낸다 — "연중 18주 월요일" → "연중 18주" */
+const stripWeekday = (name: string) => name.replace(/\s*[월화수목금토]요일$/, '')
+
+/** 같은 주인지 견주는 열쇠 — "연중 18주일"과 "연중 18주 월요일"은 같은 주다 */
+const weekKey = (name: string) => stripWeekday(name).replace(/주일$/, '주')
 import { monthPrintTitle, printWithTitle } from '../lib/print'
 import type { AppData } from '../lib/useApp'
 import type { Feast } from '../lib/types'
@@ -117,7 +123,9 @@ export function CalendarPage({ date, data, onPick }: Props) {
           // 달력 표는 종이를 눕혀야 칸이 살고, 목록은 세로로 똑바로 들어간다
           onClick={() => printWithTitle(
             monthPrintTitle(cursor),
-            mode === 'grid' ? { landscape: printRef.current } : {},
+            mode === 'grid'
+              ? { landscape: printRef.current }
+              : { fitPortrait: printRef.current },
           )}
         >인쇄 · PDF</button>
       </div>
@@ -238,15 +246,17 @@ export function CalendarPage({ date, data, onPick }: Props) {
 
       {/* 인쇄용 — 달력 모양으로 그 달의 독서를 한눈에 */}
       <div className="print-only" ref={printRef}>
-        <h1 className="month-title">{year}년 {month}월 성무일과 독서</h1>
+        <div className="month-head">
+          <h1 className="month-title">{year}년 {month}월 성무일과 독서</h1>
+          <p className="month-legend">
+            <b>시</b> 시편(아침 ✛ 저녁) · <b>구</b> 구약 · <b>서</b> 서신 · <b>복</b> 복음
+            <span className="bar">│</span>
+            평일 독서 <b>{cycle.sunday}해 / {cycle.weekday}해</b>
+            <span className="bar">│</span>
+            왼쪽 띠는 절기색 · 붉은 글씨는 대축일·주요축일
+          </p>
+        </div>
         {mode === 'grid' ? (<>
-        <p className="month-note">
-          칸마다 <b>날짜 · 교회력</b>, <b>시</b> 시편(아침 ✛ 저녁),
-          <b> 구</b> 구약 · <b>서</b> 서신 · <b>복</b> 복음 차례입니다.
-          축일은 이름 앞에 점을 두었고, 대축일·주요축일은 짙은 색으로 적었습니다.
-          평일 독서는 <b>{cycle.sunday}해 / {cycle.weekday}해</b> 기준이며,
-          왼쪽 색 띠는 그날의 절기색입니다.
-        </p>
         <table className="month-grid">
           <thead>
             <tr>{DOW.map((d) => <th key={d}>{d}</th>)}</tr>
@@ -262,6 +272,11 @@ export function CalendarPage({ date, data, onPick }: Props) {
                     (f) => f.month === mm && f.day === dd && f.rank !== 'memorial',
                   )
                   const majorFeast = feast?.rank === 'principal' || feast?.rank === 'major'
+                  // 한 줄은 곧 한 주이므로 절기 이름을 일곱 번 되풀이할 까닭이 없다.
+                  // 왼쪽 칸과 달라질 때만 적어 준다 (성탄 무렵처럼 주 안에서 바뀌는 때도 있다).
+                  const season = stripWeekday(cell.day.name)
+                  const prev = ci > 0 ? week[ci - 1] : null
+                  const showSeason = !prev || weekKey(prev.day.name) !== weekKey(cell.day.name)
                   const readings: Array<[string, string | undefined]> = [
                     ['구', lect?.readings.ot],
                     ['서', lect?.readings.epistle],
@@ -276,7 +291,7 @@ export function CalendarPage({ date, data, onPick }: Props) {
                     >
                       <div className="cell-head">
                         <span className="date">{dd}</span>
-                        <span className="season">{cell.day.name}</span>
+                        {showSeason && <span className="season">{season}</span>}
                       </div>
                       {/* 칸이 좁으므로 축일은 이름만 적는다 (괄호 안 설명은 덜어 낸다) */}
                       {feast && (
@@ -310,75 +325,56 @@ export function CalendarPage({ date, data, onPick }: Props) {
           </tbody>
         </table>
         </>) : (<>
-        <p className="month-note">
-          날짜마다 <b>교회력</b>, <b>시</b> 시편(아침 ✛ 저녁),
-          <b> 구</b> 구약 · <b>서</b> 서신 · <b>복</b> 복음 차례입니다.
-          축일은 교회력 아래에 적었고, 대축일·주요축일은 짙은 색으로 두었습니다.
-          평일 독서는 <b>{cycle.sunday}해 / {cycle.weekday}해</b> 기준이며,
-          왼쪽 색 띠는 그날의 절기색입니다.
-        </p>
-        <table className="month-list">
-          <thead>
-            <tr>
-              <th className="col-date">날짜</th>
-              <th className="col-season">교회력</th>
-              <th className="col-psalms">시편</th>
-              <th>독서</th>
-            </tr>
-          </thead>
-          <tbody>
-            {days.map(({ iso, day }) => {
-              const lect = resolveLectionary(day, data.lectionary)
-              const dd = Number(iso.slice(8))
-              const feast = feastByDay.get(dd)
-              const majorFeast = feast?.rank === 'principal' || feast?.rank === 'major'
-              const readings: Array<[string, string | undefined]> = [
-                ['구', lect?.readings.ot],
-                ['서', lect?.readings.epistle],
-                ['복', lect?.readings.gospel],
-              ]
-              return (
-                <tr
-                  key={iso}
-                  className={[day.isSunday && 'sunday', majorFeast && 'major']
-                    .filter(Boolean).join(' ') || undefined}
-                >
-                  <td
-                    className="col-date"
-                    style={{ borderLeft: `1.2mm solid ${SEASON_COLORS[day.color].light}` }}
-                  >
-                    <span className="date">{dd}</span>
-                    <span className="dow">{DOW[parseIso(iso).getUTCDay()]}</span>
-                  </td>
-                  <td className="col-season">
-                    {day.name}
-                    {feast && (
-                      <span className={`list-feast list-feast--${majorFeast ? 'major' : 'minor'}`}>
-                        {feast.name.replace(/\s*\(.*$/, '')}
-                      </span>
-                    )}
-                  </td>
-                  <td className="col-psalms">
-                    {lect && (
-                      <>
+        <div className="month-list">
+          {days.map(({ iso, day }) => {
+            const lect = resolveLectionary(day, data.lectionary)
+            const dd = Number(iso.slice(8))
+            const feast = feastByDay.get(dd)
+            const majorFeast = feast?.rank === 'principal' || feast?.rank === 'major'
+            const readings: Array<[string, string | undefined]> = [
+              ['구', lect?.readings.ot],
+              ['서', lect?.readings.epistle],
+              ['복', lect?.readings.gospel],
+            ]
+            return (
+              <div
+                key={iso}
+                className={['day', day.isSunday && 'sunday', majorFeast && 'major']
+                  .filter(Boolean).join(' ')}
+                style={{ borderLeftColor: SEASON_COLORS[day.color].light }}
+              >
+                <div className="day-head">
+                  <span className="date">{dd}</span>
+                  <span className="dow">{DOW[parseIso(iso).getUTCDay()]}</span>
+                  <span className="season">{stripWeekday(day.name)}</span>
+                </div>
+                {feast && (
+                  <div className={`cell-feast cell-feast--${majorFeast ? 'major' : 'minor'}`}>
+                    {feast.name.replace(/\s*\(.*$/, '')}
+                  </div>
+                )}
+                {lect && (
+                  <>
+                    <div className="cell-line cell-psalms">
+                      <span className="tag">시</span>
+                      <span className="ref">
                         {lect.morningPsalms.map((ps) => ps.number).join(', ')}
-                        <span className="sep">✛</span>
+                        {' ✛ '}
                         {lect.eveningPsalms.map((ps) => ps.number).join(', ')}
-                      </>
-                    )}
-                  </td>
-                  <td>
-                    {readings.map(([tag, ref]) => ref && (
-                      <span className="list-reading" key={tag}>
-                        <span className="tag">{tag}</span>{ref}
                       </span>
+                    </div>
+                    {readings.map(([tag, ref]) => ref && (
+                      <div className="cell-line" key={tag}>
+                        <span className="tag">{tag}</span>
+                        <span className="ref">{ref}</span>
+                      </div>
                     ))}
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-        </table>
+                  </>
+                )}
+              </div>
+            )
+          })}
+        </div>
         </>)}
       </div>
     </div>

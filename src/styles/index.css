@@ -67,9 +67,17 @@ body {
 }
 
 /* 한 달 독서 목록 — 달력 모양 표 */
-.month-title { font-size: 13.5pt; font-weight: 600; letter-spacing: -0.01em; }
-.month-note { font-size: 7pt; color: #666; margin: 1mm 0 2.2mm; }
-.month-note b { font-weight: 600; color: #333; }
+/* 제목과 범례를 한 줄에 두어 표에 세로 공간을 돌려준다 */
+.month-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 6mm;
+  border-bottom: 0.8pt solid #333; padding-bottom: 1.4mm; margin-bottom: 2.4mm;
+}
+.month-title {
+  font-size: 13.5pt; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap;
+}
+.month-legend { font-size: 6.6pt; color: #666; text-align: right; }
+.month-legend b { font-weight: 700; color: #333; }
+.month-legend .bar { color: #ccc; padding: 0 1.6mm; }
 
 .month-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
 .month-grid th {
@@ -120,36 +128,29 @@ body {
 .cell-psalms .ref { color: #444; }
 .cell-line .ref { flex: 1; }
 
-/* 세로 용지용 — 날짜별 독서 목록.
-   iOS처럼 용지를 눕힐 수 없는 환경에서도 똑바로 읽히도록, 달력 표 대신 쓴다.
-   본문 폭(42rem)이 마침 A4 세로 판면(178mm)과 같아 그대로 가득 찬다. */
-.month-list { width: 100%; border-collapse: collapse; }
-.month-list th {
-  font-size: 8pt; font-weight: 600; color: #444; text-align: left;
-  padding: 0 1.8mm 1.2mm; border-bottom: 0.8pt solid #444;
+/* 세로 용지용 — 날짜별 독서를 2단으로 흘려 한 쪽에 담는다.
+   iOS처럼 용지를 눕힐 수 없는 환경에서도 돌리지 않고 그대로 읽힌다. */
+.month-list {
+  column-count: 3;
+  column-gap: 5mm;
+  column-rule: 0.4pt solid #e4e4e4;
 }
-.month-list td {
-  border-bottom: 0.4pt solid #e0e0e0;
-  vertical-align: top; padding: 1.4mm 1.8mm;
-  font-size: 7.4pt; line-height: 1.45;
+.month-list .day {
+  break-inside: avoid;
+  border-top: 0.4pt solid #e8e8e8;
+  border-left: 1.2mm solid transparent;
+  padding: 0.9mm 0 1.1mm 1.6mm;
+  font-size: 6.8pt; line-height: 1.36;
 }
-.month-list .col-date { width: 14mm; white-space: nowrap; }
-.month-list .col-season { width: 40mm; }
-.month-list .col-psalms { width: 24mm; color: #444; }
-.month-list .date { font-size: 9pt; font-weight: 700; }
-.month-list .dow { font-size: 6.6pt; color: #999; margin-left: 1mm; }
+.month-list .day:first-child { border-top: 0; }
 .month-list .sunday { background: #f7f4ee; }
+.month-list .day-head {
+  display: flex; align-items: baseline; gap: 1.4mm; margin-bottom: 0.7mm;
+}
+.month-list .day-head .date { font-size: 9pt; font-weight: 700; line-height: 1; }
+.month-list .day-head .dow { font-size: 6.2pt; color: #999; }
+.month-list .day-head .season { font-size: 6.5pt; color: #555; }
 .month-list .sunday .date, .month-list .major .date { color: #8a2f28; }
-.month-list .sep { color: #bbb; padding: 0 1mm; }
-.month-list .tag { color: #999; font-size: 6.4pt; margin-right: 1.2mm; }
-/* 구약·서신·복음은 줄을 갈라 적어야 눈이 따라가기 쉽다 */
-.month-list .list-reading { display: block; }
-.month-list .list-feast { display: block; font-size: 6.6pt; margin-top: 0.4mm; }
-.month-list .list-feast--major { color: #8a2f28; }
-.month-list .list-feast--minor { color: #877d70; font-style: italic; }
-/* 쪽이 넘어가도 머리글이 따라오고, 하루가 두 쪽에 갈라지지 않게 */
-.month-list thead { display: table-header-group; }
-.month-list tr { break-inside: avoid; }
 
 /* 인쇄 전에 크기를 재려고 화면 밖에서 잠깐 펼친다 */
 html.measuring-print .print-only {

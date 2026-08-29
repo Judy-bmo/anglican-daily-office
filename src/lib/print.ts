@@ -30,6 +30,8 @@ function setDocumentTitle(title: string): void {
 export interface PrintOptions {
   /** 가로로 눕혀 종이 폭을 가득 쓰고, 한 쪽에 담기도록 배율을 맞춘다 (달력 표에 쓴다) */
   landscape?: HTMLElement | null
+  /** 세로 그대로 두되 한 쪽에 담기도록 배율만 맞춘다 (2단 독서 목록에 쓴다) */
+  fitPortrait?: HTMLElement | null
 }
 
 /** A4 가로에서 실제로 쓸 수 있는 판면 (297mm − 좌우 여백 16mm) */
@@ -41,6 +43,10 @@ const PAGE_HEIGHT_PX = 660
  * 돌려 놓으면 종이의 짧은 변이 내용의 높이가 된다.
  */
 const ROTATED_HEIGHT_PX = Math.round((210 - 16) * 96 / 25.4)
+/** A4 세로에서 본문이 차지하는 폭 — main의 42rem과 판면(210mm − 좌우 32mm)이 거의 같다 */
+const PORTRAIT_WIDTH_PX = 672
+/** 297mm − 위아래 여백이면 986px이지만, 머리말·꼬리말을 켜 둔 경우까지 감안한다. */
+const PORTRAIT_HEIGHT_PX = 920
 
 /**
  * 이 브라우저가 용지 방향 지정을 무시하는가.
@@ -56,9 +62,9 @@ export function needsRotatedPrint(ua: string, hasTouch: boolean): boolean {
 }
 
 /** 인쇄할 내용을 실제 판면 넓이로 재어, 한 쪽을 넘치면 그만큼 배율을 줄인다. */
-function fitToOnePage(element: HTMLElement, limit: number): () => void {
+function fitToOnePage(element: HTMLElement, width: number, limit: number): () => void {
   const root = document.documentElement
-  root.style.setProperty('--print-width', `${PAGE_WIDTH_PX}px`)
+  root.style.setProperty('--print-width', `${width}px`)
   root.classList.add('measuring-print')
   const height = element.scrollHeight
   root.classList.remove('measuring-print')
@@ -93,6 +99,21 @@ const LANDSCAPE_CSS = `
  * 종이의 긴 변(281mm)을 표의 가로로 쓰고 짧은 변(194mm)을 높이로 쓴다. 회전은 배치에
  * 영향을 주지 않으므로, 감싸는 `main`에 돌린 뒤의 높이를 직접 주어 한 쪽으로 끝맺는다.
  */
+/**
+ * 세로 그대로 인쇄하되 본문 폭을 판면에 맞추는 규칙.
+ *
+ * 화면용 좌우 여백이 남아 있으면 잰 폭과 실제 인쇄 폭이 어긋나 배율이 틀어진다.
+ */
+const PORTRAIT_FIT_CSS = `
+@media print {
+  main {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-top: 0 !important;
+  }
+}
+`
+
 const ROTATED_CSS = `
 @page { margin: 8mm; }
 @media print {
@@ -123,7 +144,14 @@ export function printWithTitle(title: string, opts: PrintOptions = {}): void {
     sheet = document.createElement('style')
     sheet.textContent = rotated ? ROTATED_CSS : LANDSCAPE_CSS
     document.head.appendChild(sheet)
-    undo.push(fitToOnePage(opts.landscape, rotated ? ROTATED_HEIGHT_PX : PAGE_HEIGHT_PX))
+    undo.push(fitToOnePage(
+      opts.landscape, PAGE_WIDTH_PX, rotated ? ROTATED_HEIGHT_PX : PAGE_HEIGHT_PX,
+    ))
+  } else if (opts.fitPortrait) {
+    sheet = document.createElement('style')
+    sheet.textContent = PORTRAIT_FIT_CSS
+    document.head.appendChild(sheet)
+    undo.push(fitToOnePage(opts.fitPortrait, PORTRAIT_WIDTH_PX, PORTRAIT_HEIGHT_PX))
   }
   const restore = () => {
     setDocumentTitle(original)
