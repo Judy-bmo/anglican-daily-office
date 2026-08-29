@@ -1,0 +1,11 @@
+node_modules/
+dist/
+dev-dist/
+.venv/
+scratch/
+*.log
+.DS_Store
+tsconfig.tsbuildinfo
+
+# 원본 기도서 PDF는 저장소에 두지 않는다 (tools/build.py로 다시 뽑을 수 있다)
+*.pdf

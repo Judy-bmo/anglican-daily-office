@@ -1,0 +1,193 @@
+@import 'tailwindcss';
+
+/* ──────────────────────────────────────────────────────────────
+   성무일과 — 미니멀·차분한 톤. 여백을 넉넉히, 본문은 세리프로.
+   절기색(--season)은 포인트로만 은은하게 쓴다.
+   ────────────────────────────────────────────────────────────── */
+
+@theme {
+  --font-serif: 'Noto Serif KR', 'Nanum Myeongjo', 'Apple SD Gothic Neo', 'Malgun Gothic', serif;
+  --font-sans: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+}
+
+:root {
+  --font-scale: 1;
+  --paper: #faf8f4;
+  --paper-raised: #ffffff;
+  --ink: #23241f;
+  --ink-muted: #6f6d64;
+  --ink-faint: #9b9890;
+  --rule: #e4dfd4;
+  --season: #41684b;
+  --season-soft: #eaf2ec;
+  --season-dark: #9dc4a6;
+  --season-soft-dark: #1b2a1f;
+  --accent: var(--season);
+  --accent-soft: var(--season-soft);
+  /* 축일은 예로부터 붉은 글씨로 적었다 (기도서도 주요축일을 붉은 별색으로 인쇄한다) */
+  --feast: #9a4a3f;
+  --feast-strong: #8a2f28;
+}
+
+:root[data-theme='dark'] {
+  --paper: #16181a;
+  --paper-raised: #1e2124;
+  --ink: #eceae4;
+  --ink-muted: #a09d95;
+  --ink-faint: #76736c;
+  --rule: #2e3134;
+  --accent: var(--season-dark);
+  --accent-soft: var(--season-soft-dark);
+  --feast: #cf938a;
+  --feast-strong: #e0a79e;
+}
+
+html {
+  background: var(--paper);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-serif);
+  font-size: calc(1rem * var(--font-scale));
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+/* 기도 본문 — 낭송하기 좋게 줄간격을 넓게, 기도서처럼 양쪽을 맞춘다.
+   원문도 어절 중간에서 줄을 바꾸므로 낱말 사이가 벌어지지 않게 같은 방식을 쓴다. */
+.prayer-text {
+  line-height: 1.95;
+  text-align: justify;
+  text-justify: inter-character;
+  overflow-wrap: break-word;
+}
+
+/* 한 달 독서 목록 — 달력 모양 표 */
+.month-title { font-size: 13.5pt; font-weight: 600; letter-spacing: -0.01em; }
+.month-note { font-size: 7pt; color: #666; margin: 1mm 0 2.2mm; }
+.month-note b { font-weight: 600; color: #333; }
+
+.month-grid { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.month-grid th {
+  font-size: 8pt; font-weight: 600; color: #444;
+  padding: 0 0 1.2mm; border-bottom: 0.8pt solid #444; text-align: left;
+  padding-left: 1.8mm;
+}
+.month-grid th:first-child, .month-grid .sunday .date { color: #8a2f28; }
+.month-grid td {
+  border-bottom: 0.4pt solid #d5d5d5;
+  border-right: 0.4pt solid #eee;
+  vertical-align: top; padding: 1.2mm 1.5mm 1.4mm;
+  height: 20mm; font-size: 6.7pt; line-height: 1.42;
+}
+.month-grid td:last-child { border-right: 0; }
+.month-grid .sunday { background: #f7f4ee; }
+.month-grid .empty { background: #fbfbfb; }
+
+/* 날짜와 절기 이름 */
+.cell-head {
+  display: flex; align-items: baseline; gap: 1.4mm;
+  padding-bottom: 0.7mm; margin-bottom: 0.9mm;
+  border-bottom: 0.3pt solid #ddd;
+}
+.cell-head .date { font-size: 10pt; font-weight: 700; line-height: 1; }
+.cell-head .season { font-size: 6.4pt; color: #666; }
+/* 축일 — 작은 점을 앞에 두고, 등급에 따라 색을 달리한다 */
+.cell-feast {
+  display: flex; align-items: baseline; gap: 1.2mm;
+  font-size: 6.1pt; letter-spacing: -0.01em; margin: -0.2mm 0 0.9mm;
+}
+.cell-feast::before {
+  content: ''; flex: 0 0 auto;
+  width: 1.1mm; height: 1.1mm; border-radius: 50%;
+  background: currentColor; transform: translateY(-0.4mm);
+}
+.cell-feast--major { color: #8a2f28; }
+.cell-feast--minor { color: #877d70; font-style: italic; }
+.cell-feast--minor::before { background: none; box-shadow: inset 0 0 0 0.3mm currentColor; }
+.month-grid .major .date { color: #8a2f28; }
+
+/* 시편과 독서 */
+.cell-line { display: flex; gap: 1.4mm; }
+.cell-line .tag {
+  flex: 0 0 4.8mm; color: #999; font-size: 6pt; letter-spacing: -0.02em;
+}
+.cell-psalms { margin-bottom: 0.7mm; }
+.cell-psalms .ref { color: #444; }
+.cell-line .ref { flex: 1; }
+
+/* 인쇄 전에 크기를 재려고 화면 밖에서 잠깐 펼친다 */
+html.measuring-print .print-only {
+  display: block !important;
+  position: absolute;
+  left: -10000px;
+  top: 0;
+  width: var(--print-width, 1062px);
+  visibility: hidden;
+}
+
+
+/* 「은혜로운 빛이여」 같은 송가는 행마다 줄을 바꾸되 간격을 좁게 둔다 */
+.verse-line { line-height: 1.62; }
+
+/* 성경 낭독 부분은 배경을 살짝 구분한다 */
+.reading-block {
+  background: color-mix(in srgb, var(--accent-soft) 70%, var(--paper));
+  border-left: 2px solid color-mix(in srgb, var(--accent) 40%, transparent);
+}
+
+/* 지금 낭독 중인 구간 */
+.speaking {
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+  border-radius: 0.375rem;
+}
+
+/* 터치 영역은 넉넉하게 (기도 중 사용성) */
+.tap { min-height: 48px; min-width: 48px; }
+/* 달력 칸처럼 가로가 좁게 나뉘는 곳은 세로 높이만 확보한다 */
+.tap-y { min-height: 48px; }
+
+::selection { background: color-mix(in srgb, var(--accent) 28%, transparent); }
+
+/* 라디오·체크박스·슬라이더도 절기색을 따르게 한다 (기본 파랑은 이 화면과 겉돈다) */
+input[type='radio'], input[type='checkbox'], input[type='range'] {
+  accent-color: var(--accent);
+}
+
+:where(button, a, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+/* ─────────────  인쇄 / PDF 내보내기  ───────────── */
+@media print {
+  @page { margin: 18mm 16mm; }
+  html, body { background: #fff; color: #000; font-size: 11pt; }
+  .no-print { display: none !important; }
+  /* 화면용 감싸개의 아래 여백·최소 높이가 인쇄 흐름에 남아 마지막 줄을 다음 장으로
+     밀어내는 일이 있어 지운다 */
+  body > #root > * { min-height: 0 !important; padding-bottom: 0 !important; }
+  .print-only { display: block !important; }
+  .reading-block { background: transparent; border-left: 1px solid #999; }
+  /* 쪽 나눔.
+     절 하나를 통째로 묶어 두면 긴 시편·독서가 다음 장으로 밀려 앞 쪽이 뭉텅 비게 된다.
+     그래서 긴 덩어리는 자연스럽게 이어 흐르게 두고, 표제가 쪽 끝에 홀로 남는 것과
+     문단의 한 줄만 떨어지는 것만 막는다. */
+  h1, h2, h3, h4 { break-after: avoid; break-inside: avoid; }
+  .office-section, .reading-block { break-inside: auto; }
+  p, li { orphans: 2; widows: 2; }
+  /* 부르고 답하는 짝은 갈라지지 않게 */
+  .versicle-pair { break-inside: avoid; }
+
+  a[href]::after { content: ''; }
+}
+.print-only { display: none; }

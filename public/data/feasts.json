@@ -1,0 +1,1009 @@
+{
+ "source": "대한성공회 기도서(2004) 32~38쪽 「월별 축일」",
+ "legend": {
+  "principal": "대축일",
+  "major": "주요축일",
+  "feast": "축일",
+  "memorial": "기념일"
+ },
+ "feasts": [
+  {
+   "month": 1,
+   "day": 1,
+   "name": "거룩한 이름 예수",
+   "rank": "major",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 1,
+   "name": "세계평화를 위한 기도일",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 2,
+   "name": "바실(주교, 379년)과 나지안조의 그레고리(주교, 389년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 6,
+   "name": "공현일",
+   "rank": "principal",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 8,
+   "name": "안티오키아의 루시안(사제, 순교자, 312년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 8,
+   "name": "1 3 일 대한성공회 최초의 한국인 수녀 이비비 서원일(1932)",
+   "rank": "memorial",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 14,
+   "name": "힐라리(포아티에의 주교, 367년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 17,
+   "name": "안토니오(에집트 은수자, 수도원장, 356년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 18,
+   "name": "프리스카(순교자, 로마, 265년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 18,
+   "name": "사이에 오는 주일의 주간 교회일치를 위한 8일 기도주간",
+   "rank": "feast",
+   "page": 32,
+   "dayEnd": 25
+  },
+  {
+   "month": 1,
+   "day": 20,
+   "name": "파비안(주교, 순교자, 로마, 250년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 21,
+   "name": "아그네스(순교자, 로마, 304년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 22,
+   "name": "빈센트(부제, 스페인의 최초 순교자, 304년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 25,
+   "name": "사도 성 바울로의 회심",
+   "rank": "major",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 26,
+   "name": "성 디모테오와 디도(사도 바울로의 동역자, 1세기)",
+   "rank": "major",
+   "page": 32
+  },
+  {
+   "month": 1,
+   "day": 28,
+   "name": "토마스 아퀴나스(사제, 학자, 1274년)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 2,
+   "day": 2,
+   "name": "주의 봉헌",
+   "rank": "major",
+   "page": 32
+  },
+  {
+   "month": 2,
+   "day": 5,
+   "name": "아가타(순교자, 시실리, 251년경)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 2,
+   "day": 11,
+   "name": "병자를 위한 기도일",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 2,
+   "day": 13,
+   "name": "도로테아(순교자, 303년경)",
+   "rank": "feast",
+   "page": 32
+  },
+  {
+   "month": 2,
+   "day": 14,
+   "name": "키릴과 메토디우스(슬라브 선교사, 주교, 869년 / 885년) 발렌틴(사제, 의사, 순교자, 로마, 269년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 2,
+   "day": 23,
+   "name": "폴리캅(주교, 순교자, 스미르나, 156년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 1,
+   "name": "데이빗(미네비아의 주교, 웨일즈 수호성인, 601년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 7,
+   "name": "페르페투아(순교자, 카르타고, 203년)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 13,
+   "name": "예루살렘의 키릴(주교, 증거자, 386년)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 17,
+   "name": "패트릭(주교, 선교사, 아일랜드 수호성인, 460년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 19,
+   "name": "성 요셉",
+   "rank": "major",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 19,
+   "name": "2 1 일 토마스 크랜머(캔터베리대주교, 예전개혁자, 순교자, 1556년)",
+   "rank": "memorial",
+   "page": 33
+  },
+  {
+   "month": 3,
+   "day": 25,
+   "name": "성모수태고지",
+   "rank": "major",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 5,
+   "name": "마틴 루터 킹(목사, 미국인권운동가, 1968년)",
+   "rank": "memorial",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 9,
+   "name": "디트리히 본회퍼(독일, 학자, 순교자, 1945년)",
+   "rank": "memorial",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 21,
+   "name": "안셀름(캔터베리대주교, 1109년)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 23,
+   "name": "조오지(순교자, 영국 수호성인, 304년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 25,
+   "name": "성 마르코(복음사가)",
+   "rank": "major",
+   "page": 33
+  },
+  {
+   "month": 4,
+   "day": 29,
+   "name": "시에나의 카타리나(1380년)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 5,
+   "day": 1,
+   "name": "사도 성 필립보와 성 야고보",
+   "rank": "major",
+   "page": 33
+  },
+  {
+   "month": 5,
+   "day": 2,
+   "name": "아타나시오(알렉산드리아 주교, 증거자, 373년)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 5,
+   "day": 3,
+   "name": "성 십자가 발견(324년경)",
+   "rank": "feast",
+   "page": 33
+  },
+  {
+   "month": 5,
+   "day": 6,
+   "name": "라틴 문 앞의 성 요한 사도",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 14,
+   "name": "사도 성 마티아",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 19,
+   "name": "둔스탄(캔터베리대주교, 수도운동의 부흥가, 968년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 21,
+   "name": "헬레나(콘스탄틴 대제의 모친, 성지의 수호자, 330년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 21,
+   "name": "2 4 일 요한 웨슬리(복음전도자, 1791년)",
+   "rank": "memorial",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 25,
+   "name": "베다(사제, 자로의 수사, 학자, 역사가, 735년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 26,
+   "name": "캔터베리의 어거스틴(캔터베리 초대주교, 선교사, 605년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 26,
+   "name": "2 7 일 대한성공회 초대 한국인 주교 이천환 주교서품일(1965년)",
+   "rank": "memorial",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 28,
+   "name": "이레네우스(리옹의 주교, 순교자, 증거자, 202년경)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 5,
+   "day": 31,
+   "name": "성모 방문",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 1,
+   "name": "저스틴(순교자, 로마, 165년경)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 5,
+   "name": "보니파스(주교, 독일의 선교사, 순교자, 754년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 9,
+   "name": "콜롬바(아이오나 수도원장, 선교사, 597년) 에프렘(부제, 에데싸, 시인, 373년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 11,
+   "name": "사도 성 바르나바",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 16,
+   "name": "리처드(치체스터의 주교, 증거자, 1253년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 22,
+   "name": "알반(영국의 첫 순교자, 304년경)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 23,
+   "name": "에텔드리다(엘리 수녀원장, 678년경)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 24,
+   "name": "성세례요한탄생",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 27,
+   "name": "알렉산드리아의 키릴(주교, 증거자, 444년)",
+   "rank": "feast",
+   "page": 34
+  },
+  {
+   "month": 6,
+   "day": 29,
+   "name": "사도 성 베드로와 바울로",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 7,
+   "day": 3,
+   "name": "사도성토마",
+   "rank": "major",
+   "page": 34
+  },
+  {
+   "month": 7,
+   "day": 6,
+   "name": "토마스 모어(학자, 종교개혁 순교자, 1535년)",
+   "rank": "memorial",
+   "page": 34
+  },
+  {
+   "month": 7,
+   "day": 11,
+   "name": "베네딕트(몬테카씨노의 수도원장, 서방 수도원의 교부, 550년경)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 15,
+   "name": "보나벤투라(알바노의 주교, 학자, 증거자, 1274년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 20,
+   "name": "마가렛(순교자, 3세기)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 22,
+   "name": "성 막달라 마리아",
+   "rank": "major",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 25,
+   "name": "사도 성 장(�) 야고보",
+   "rank": "major",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 26,
+   "name": "안나와 요하킴(성모 마리아의 양친)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 29,
+   "name": "성 마리아와 마르타",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 7,
+   "day": 31,
+   "name": "성 아리마태아 요셉",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 1,
+   "name": "성 베드로의 탈옥",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 5,
+   "name": "오스왈드(노텀부리아의 왕, 순교자, 642년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 6,
+   "name": "주의 변모",
+   "rank": "major",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 8,
+   "name": "도미닉(사제, 수도원 설립자, 1221년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 10,
+   "name": "로렌스(부제, 로마, 순교자, 258년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 11,
+   "name": "아씨시의 클라라(작은 자의 수녀원 설립자, 1253년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 15,
+   "name": "성모 안식",
+   "rank": "major",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 20,
+   "name": "버나드(클레보의 수도원장, 증거자, 1153년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 24,
+   "name": "사도 성 바르톨로메오",
+   "rank": "major",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 27,
+   "name": "모니카(히포의 어거스틴 어머니, 387년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 28,
+   "name": "히포의 어거스틴(주교, 증거자, 430년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 29,
+   "name": "성 세례 요한의 참수",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 8,
+   "day": 31,
+   "name": "애단(린디스판의 주교, 선교사, 651년)",
+   "rank": "feast",
+   "page": 35
+  },
+  {
+   "month": 9,
+   "day": 1,
+   "name": "대한성공회 최초의 수녀선교사 노라(1890년)",
+   "rank": "memorial",
+   "page": 35
+  },
+  {
+   "month": 9,
+   "day": 4,
+   "name": "대 그레고리(로마의 주교, 증거자, 604년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 8,
+   "name": "성모 탄신",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 13,
+   "name": "요한 크리소스톰(콘스탄티노플의 주교, 증거자, 407년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 14,
+   "name": "성십자가의 날",
+   "rank": "major",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 14,
+   "name": "대한성공회 성가수녀회 설립기념일",
+   "rank": "memorial",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 15,
+   "name": "키프리안(카르타고의 주교, 순교자, 258년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 16,
+   "name": "니니안(갈로웨이의 주교, 픽트의 선교사, 432년경)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 19,
+   "name": "탈수스의 데오도르(캔터베리대주교, 690년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 21,
+   "name": "사도 성 마태오(복음사가)",
+   "rank": "major",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 26,
+   "name": "모든 한국인 순교자들",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 29,
+   "name": "성 미카엘과 모든 천사들",
+   "rank": "major",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 29,
+   "name": "대한성공회 설립 기념일, 1890년",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 9,
+   "day": 30,
+   "name": "제롬(사제, 성서번역가, 420년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 4,
+   "name": "아씨시의 프란시스(수사, 부제, 작은 자들의 공동체 설립자, 1226년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 6,
+   "name": "피데스(순교자, 304년경)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 9,
+   "name": "데니스(파리의 주교, 순교자, 250년경)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 9,
+   "name": "1 0 일 대한성공회 최초의 의료 선교사 남득시(랜디스), 노인산(로",
+   "rank": "memorial",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 9,
+   "name": "스)",
+   "rank": "memorial",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 12,
+   "name": "윌프리드(주교, 선교사, 709년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 13,
+   "name": "에드워드(영국 왕, 고백자, 1066년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 15,
+   "name": "아빌라의 데레사(1592년)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 17,
+   "name": "안티오키아의 익나시오(주교, 순교자, 107년경)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 18,
+   "name": "성 루가(복음사가)",
+   "rank": "major",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 23,
+   "name": "예루살렘의 성 야고보(주의 형제, 순교자, 62년경)",
+   "rank": "feast",
+   "page": 36
+  },
+  {
+   "month": 10,
+   "day": 25,
+   "name": "크리스핀(로마의 순교자, 287년경)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 10,
+   "day": 26,
+   "name": "채드(리치필드의 주교, 선교사, 672년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 10,
+   "day": 27,
+   "name": "알프레드(서 색슨의 왕, 학자, 899년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 10,
+   "day": 28,
+   "name": "사도 성 시몬과 유다",
+   "rank": "major",
+   "page": 37
+  },
+  {
+   "month": 10,
+   "day": 28,
+   "name": "3 1 일 마틴 루터와 종교개혁의 순교자들(종교개혁자들, 1546년)",
+   "rank": "memorial",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 1,
+   "name": "모든 성인의 날",
+   "rank": "principal",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 1,
+   "name": "대한성공회 초대주교 고요한(존 코프) 주교서품(1889년)",
+   "rank": "memorial",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 2,
+   "name": "모든 별세자의 날",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 6,
+   "name": "레오나드(은수자, 6세기)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 10,
+   "name": "레오(로마의 주교, 증거자, 461년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 11,
+   "name": "마틴(투르의 주교, 수사, 397년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 16,
+   "name": "마가렛(스코틀랜드 여왕, 교회개혁가, 1093년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 17,
+   "name": "휴고(수사, 링컨의 주교, 1200년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 19,
+   "name": "힐다(휘트비의 수녀원장, 680년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 22,
+   "name": "세실리아(로마의 순교자, 230년경)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 23,
+   "name": "클레멘트(로마의 주교, 순교자, 100년경)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 25,
+   "name": "알렉산드리아의 카타리나(순교자, 4세기)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 11,
+   "day": 30,
+   "name": "사도 성 안드레아",
+   "rank": "major",
+   "page": 37
+  },
+  {
+   "month": 12,
+   "day": 3,
+   "name": "프란시스 사베리오(선교사, 동양 수호성인, 1552년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 12,
+   "day": 4,
+   "name": "바바라(수녀, 순교자, 306년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 12,
+   "day": 6,
+   "name": "성 니콜라(대한성공회 수호성인, 미라의 주교, 326년)",
+   "rank": "major",
+   "page": 37
+  },
+  {
+   "month": 12,
+   "day": 7,
+   "name": "암브로스(밀라노의 주교, 397년)",
+   "rank": "feast",
+   "page": 37
+  },
+  {
+   "month": 12,
+   "day": 8,
+   "name": "성모시태",
+   "rank": "feast",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 13,
+   "name": "루시아(시라쿠스의 순교자, 304년)",
+   "rank": "feast",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 13,
+   "name": "2 1 일 대한성공회 첫 한인 사제 김희준 서품일(1915년)",
+   "rank": "memorial",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 25,
+   "name": "성탄일",
+   "rank": "principal",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 26,
+   "name": "성 스테파노(부제, 최초의 순교자)",
+   "rank": "major",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 27,
+   "name": "사도 성 요한(복음사가)",
+   "rank": "major",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 28,
+   "name": "죄없는 어린이들의 순교",
+   "rank": "major",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 29,
+   "name": "토마스 베켓(캔터베리대주교, 순교자, 1170년)",
+   "rank": "feast",
+   "page": 38
+  },
+  {
+   "month": 12,
+   "day": 31,
+   "name": "실베스터(로마의 주교, 335년) 위클리프(종교개혁가, 1384년)",
+   "rank": "feast",
+   "page": 38
+  }
+ ],
+ "notes": [
+  {
+   "month": 1,
+   "text": "공현일 후 첫 주일 : 주의 세례주일"
+  },
+  {
+   "month": 2,
+   "text": "음력 1월 1일은 설 명절 축일"
+  },
+  {
+   "month": 4,
+   "text": "성령강림 후 첫 주일 : 삼위일체주일"
+  },
+  {
+   "month": 4,
+   "text": "삼위일체주일 후 첫 목요일 : 그리스도의 성체일"
+  },
+  {
+   "month": 5,
+   "text": "가정주일 5월 둘째주일"
+  },
+  {
+   "month": 8,
+   "text": "평화통일주일 8.15 전주일"
+  },
+  {
+   "month": 9,
+   "text": "음력 8월15일 추석명절 축일"
+  },
+  {
+   "month": 11,
+   "text": "연중 마지막 주일 : 왕이신 그리스도주일"
+  },
+  {
+   "month": 11,
+   "text": "셋째주일 추수감사주일"
+  }
+ ]
+}

@@ -1,0 +1,105 @@
+export type OfficeId = 'morning' | 'noon' | 'evening' | 'night'
+export type ReadingYear = '1' | '2' | 'both'
+
+/** 성무일과 예식문 한 조각 */
+export interface OfficeBlock {
+  type: 'title' | 'rubric' | 'section' | 'option' | 'versicle' | 'response' | 'verse' | 'heading' | 'text'
+  text?: string
+  title?: string
+  n?: number | string
+  marker?: string
+  page: number
+}
+
+export interface OfficeDoc {
+  office: OfficeId | 'brief' | 'canticles'
+  title: string
+  pages: [number, number]
+  /** 성서정과(날짜별 전례독서)를 따르는 예식인지. 낮기도·밤기도는 false. */
+  lectionaryLinked: boolean
+  blocks: OfficeBlock[]
+}
+
+export interface ReadingSet {
+  ot?: string
+  epistle?: string
+  gospel?: string
+  extra?: string[]
+}
+
+export interface OfficeReadings {
+  psalms?: string | null
+  readings: string[]
+}
+
+export interface LectionaryDay {
+  label: string
+  kind: 'sunday' | 'weekday' | 'date' | 'special' | 'feast'
+  page: number
+  season?: string
+  week?: number | null
+  weekday?: number
+  month?: number
+  day?: number
+  psalms: { morning?: string | null; evening?: string | null; raw?: string }
+  readings: Partial<Record<ReadingYear, ReadingSet>>
+  /** 고난주일·부활주일·성탄주간 축일처럼 아침/저녁 독서가 따로 지정된 경우 */
+  offices?: Partial<Record<'morning' | 'evening', OfficeReadings>>
+  alternates?: string[]
+  notes?: string[]
+}
+
+export interface PsalmVerse {
+  n?: string | null
+  text?: string
+  section?: string
+  /** 긴 시편을 나누어 낭송하도록 표시한 구분 (기도서 526쪽) */
+  part?: string
+}
+
+export interface Psalm {
+  number: number
+  page: number
+  verses: PsalmVerse[]
+  gloria: string | null
+}
+
+export type FeastRank = 'principal' | 'major' | 'feast' | 'memorial'
+
+export interface Feast {
+  month: number
+  day: number
+  dayEnd?: number
+  name: string
+  rank: FeastRank
+  page: number
+}
+
+export interface BibleBook {
+  id: string
+  name_ko: string
+  short_name_ko: string
+  name_en: string
+  division: 'old_testament' | 'deuterocanon' | 'new_testament'
+  chapter_count: number
+  has_prologue?: boolean
+}
+
+export interface BibleSegment {
+  type: string
+  text: string
+  paragraph_break?: boolean
+}
+
+export interface BibleVerse {
+  number: number
+  segments: BibleSegment[]
+  notes?: Array<{ id: string; anchor: string; body: string }>
+}
+
+export interface BibleChapter {
+  book_id: string
+  book_name_ko: string
+  chapter: number
+  verses: BibleVerse[]
+}
