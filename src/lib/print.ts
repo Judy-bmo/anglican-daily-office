@@ -39,10 +39,17 @@ const PAGE_WIDTH_PX = Math.round((297 - 16) * 96 / 25.4)
 /** 210mm − 위아래 여백이면 726px이지만, 머리말·꼬리말을 켜 둔 경우까지 감안한다. */
 const PAGE_HEIGHT_PX = 660
 /**
- * 세로 용지에 눕혀 앉힐 때 내용이 쓸 수 있는 높이 (210mm − 좌우 여백 16mm).
- * 돌려 놓으면 종이의 짧은 변이 내용의 높이가 된다.
+ * 세로 용지에 눕혀 앉힐 때 쓸 수 있는 판면.
+ *
+ * 돌려 놓으면 내용의 가로가 종이의 긴 변, 내용의 세로가 짧은 변을 차지한다.
+ * 문제는 이 브라우저가 @page의 여백 지정도 무시한다는 것이다. A4 판면에 딱
+ * 맞춰 놓았더니 자체 여백만큼 모자라, 맨 오른쪽 열(토요일)이 다음 장으로
+ * 밀려났다. 그래서 A4·레터 가운데 작은 쪽에 넉넉한 여백을 빼고 잡는다.
+ *   긴 변  min(297, 279.4)mm − 여백 25.4mm ≈ 254mm
+ *   짧은 변 min(210, 215.9)mm − 여백 25.4mm ≈ 185mm
  */
-const ROTATED_HEIGHT_PX = Math.round((210 - 16) * 96 / 25.4)
+const ROTATED_WIDTH_PX = 950
+const ROTATED_HEIGHT_PX = 690
 /** A4 세로에서 본문이 차지하는 폭 — main의 42rem과 판면(210mm − 좌우 32mm)이 거의 같다 */
 const PORTRAIT_WIDTH_PX = 672
 /** 297mm − 위아래 여백이면 986px이지만, 머리말·꼬리말을 켜 둔 경우까지 감안한다. */
@@ -121,13 +128,13 @@ const ROTATED_CSS = `
     max-width: none !important;
     padding: 0 !important;
     position: relative;
-    height: ${PAGE_WIDTH_PX}px;
+    height: ${ROTATED_WIDTH_PX}px;
   }
   .print-only {
     position: absolute;
     top: 0;
     left: 0;
-    width: ${PAGE_WIDTH_PX}px;
+    width: ${ROTATED_WIDTH_PX}px;
     transform-origin: 0 0;
     transform: rotate(90deg) translateY(-100%);
   }
@@ -144,9 +151,9 @@ export function printWithTitle(title: string, opts: PrintOptions = {}): void {
     sheet = document.createElement('style')
     sheet.textContent = rotated ? ROTATED_CSS : LANDSCAPE_CSS
     document.head.appendChild(sheet)
-    undo.push(fitToOnePage(
-      opts.landscape, PAGE_WIDTH_PX, rotated ? ROTATED_HEIGHT_PX : PAGE_HEIGHT_PX,
-    ))
+    undo.push(rotated
+      ? fitToOnePage(opts.landscape, ROTATED_WIDTH_PX, ROTATED_HEIGHT_PX)
+      : fitToOnePage(opts.landscape, PAGE_WIDTH_PX, PAGE_HEIGHT_PX))
   } else if (opts.fitPortrait) {
     sheet = document.createElement('style')
     sheet.textContent = PORTRAIT_FIT_CSS
