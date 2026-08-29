@@ -5,6 +5,8 @@ import {
 } from '../lib/churchCalendar'
 import { resolveLectionary } from '../lib/lectionary'
 import { SEASON_COLORS } from '../lib/theme'
+
+const DOW = ['일', '월', '화', '수', '목', '금', '토']
 import { monthPrintTitle, printWithTitle } from '../lib/print'
 import type { AppData } from '../lib/useApp'
 import type { Feast } from '../lib/types'
@@ -109,15 +111,21 @@ export function CalendarPage({ date, data, onPick }: Props) {
         <button
           className="tap shrink-0 rounded-full border px-4 py-1.5"
           style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}
-          aria-label="이번 달 독서 목록을 달력 모양으로 인쇄"
-          onClick={() => printWithTitle(monthPrintTitle(cursor), { landscape: printRef.current })}
+          aria-label={mode === 'grid'
+            ? '이번 달 독서를 달력 모양으로 인쇄'
+            : '이번 달 독서를 날짜별 목록으로 인쇄'}
+          // 달력 표는 종이를 눕혀야 칸이 살고, 목록은 세로로 똑바로 들어간다
+          onClick={() => printWithTitle(
+            monthPrintTitle(cursor),
+            mode === 'grid' ? { landscape: printRef.current } : {},
+          )}
         >인쇄 · PDF</button>
       </div>
 
       {mode === 'grid' ? (
         <>
           <div className="mb-1 grid grid-cols-7 text-center text-xs" style={{ color: 'var(--ink-faint)' }}>
-            {['일', '월', '화', '수', '목', '금', '토'].map((d) => <div key={d} className="py-1">{d}</div>)}
+            {DOW.map((d) => <div key={d} className="py-1">{d}</div>)}
           </div>
           <div className="grid grid-cols-7 gap-1">
             {Array.from({ length: lead }, (_, i) => <div key={`pad-${i}`} />)}
@@ -200,6 +208,10 @@ export function CalendarPage({ date, data, onPick }: Props) {
       <p className="mt-1 text-sm" style={{ color: 'var(--ink-faint)' }}>
         날짜를 누르면 그날 성무일과로 갑니다
       </p>
+      <p className="mt-1 text-sm" style={{ color: 'var(--ink-faint)' }}>
+        인쇄하면 지금 보고 있는 모양 그대로 나옵니다 —
+        달력은 가로로, 독서 목록은 세로로 인쇄됩니다
+      </p>
 
       {mode === 'grid' && (
         <section className="mt-6 border-t pt-4" style={{ borderColor: 'var(--rule)' }}>
@@ -227,6 +239,7 @@ export function CalendarPage({ date, data, onPick }: Props) {
       {/* 인쇄용 — 달력 모양으로 그 달의 독서를 한눈에 */}
       <div className="print-only" ref={printRef}>
         <h1 className="month-title">{year}년 {month}월 성무일과 독서</h1>
+        {mode === 'grid' ? (<>
         <p className="month-note">
           칸마다 <b>날짜 · 교회력</b>, <b>시</b> 시편(아침 ✛ 저녁),
           <b> 구</b> 구약 · <b>서</b> 서신 · <b>복</b> 복음 차례입니다.
@@ -236,7 +249,7 @@ export function CalendarPage({ date, data, onPick }: Props) {
         </p>
         <table className="month-grid">
           <thead>
-            <tr>{['일', '월', '화', '수', '목', '금', '토'].map((d) => <th key={d}>{d}</th>)}</tr>
+            <tr>{DOW.map((d) => <th key={d}>{d}</th>)}</tr>
           </thead>
           <tbody>
             {weeks.map((week, wi) => (
@@ -296,6 +309,77 @@ export function CalendarPage({ date, data, onPick }: Props) {
             ))}
           </tbody>
         </table>
+        </>) : (<>
+        <p className="month-note">
+          날짜마다 <b>교회력</b>, <b>시</b> 시편(아침 ✛ 저녁),
+          <b> 구</b> 구약 · <b>서</b> 서신 · <b>복</b> 복음 차례입니다.
+          축일은 교회력 아래에 적었고, 대축일·주요축일은 짙은 색으로 두었습니다.
+          평일 독서는 <b>{cycle.sunday}해 / {cycle.weekday}해</b> 기준이며,
+          왼쪽 색 띠는 그날의 절기색입니다.
+        </p>
+        <table className="month-list">
+          <thead>
+            <tr>
+              <th className="col-date">날짜</th>
+              <th className="col-season">교회력</th>
+              <th className="col-psalms">시편</th>
+              <th>독서</th>
+            </tr>
+          </thead>
+          <tbody>
+            {days.map(({ iso, day }) => {
+              const lect = resolveLectionary(day, data.lectionary)
+              const dd = Number(iso.slice(8))
+              const feast = feastByDay.get(dd)
+              const majorFeast = feast?.rank === 'principal' || feast?.rank === 'major'
+              const readings: Array<[string, string | undefined]> = [
+                ['구', lect?.readings.ot],
+                ['서', lect?.readings.epistle],
+                ['복', lect?.readings.gospel],
+              ]
+              return (
+                <tr
+                  key={iso}
+                  className={[day.isSunday && 'sunday', majorFeast && 'major']
+                    .filter(Boolean).join(' ') || undefined}
+                >
+                  <td
+                    className="col-date"
+                    style={{ borderLeft: `1.2mm solid ${SEASON_COLORS[day.color].light}` }}
+                  >
+                    <span className="date">{dd}</span>
+                    <span className="dow">{DOW[parseIso(iso).getUTCDay()]}</span>
+                  </td>
+                  <td className="col-season">
+                    {day.name}
+                    {feast && (
+                      <span className={`list-feast list-feast--${majorFeast ? 'major' : 'minor'}`}>
+                        {feast.name.replace(/\s*\(.*$/, '')}
+                      </span>
+                    )}
+                  </td>
+                  <td className="col-psalms">
+                    {lect && (
+                      <>
+                        {lect.morningPsalms.map((ps) => ps.number).join(', ')}
+                        <span className="sep">✛</span>
+                        {lect.eveningPsalms.map((ps) => ps.number).join(', ')}
+                      </>
+                    )}
+                  </td>
+                  <td>
+                    {readings.map(([tag, ref]) => ref && (
+                      <span className="list-reading" key={tag}>
+                        <span className="tag">{tag}</span>{ref}
+                      </span>
+                    ))}
+                  </td>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+        </>)}
       </div>
     </div>
   )
