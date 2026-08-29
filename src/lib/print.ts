@@ -36,17 +36,35 @@ export interface PrintOptions {
 const PAGE_WIDTH_PX = Math.round((297 - 16) * 96 / 25.4)
 /** 210mm − 위아래 여백이면 726px이지만, 머리말·꼬리말을 켜 둔 경우까지 감안한다. */
 const PAGE_HEIGHT_PX = 660
+/**
+ * 세로 용지에 눕혀 앉힐 때 내용이 쓸 수 있는 높이 (210mm − 좌우 여백 16mm).
+ * 돌려 놓으면 종이의 짧은 변이 내용의 높이가 된다.
+ */
+const ROTATED_HEIGHT_PX = Math.round((210 - 16) * 96 / 25.4)
+
+/**
+ * 이 브라우저가 용지 방향 지정을 무시하는가.
+ *
+ * iOS·iPadOS의 웹킷은 @page의 size를 통째로 무시한다. 가로로 눕혀 달라고 해도 세로로
+ * 나오고, 좁아진 폭에 표가 구겨진다. 그런 브라우저에서는 우리가 직접 내용을 90도 돌려
+ * 세로 용지에 눕혀 앉힌다. 종이에 뽑으면 용지를 돌려 보는 것과 같은 결과가 된다.
+ */
+export function needsRotatedPrint(ua: string, hasTouch: boolean): boolean {
+  if (/iPad|iPhone|iPod/.test(ua)) return true
+  // iPadOS 13부터는 데스크톱 사파리와 같은 UA를 보내므로 터치 여부로 가른다
+  return /Macintosh/.test(ua) && hasTouch
+}
 
 /** 인쇄할 내용을 실제 판면 넓이로 재어, 한 쪽을 넘치면 그만큼 배율을 줄인다. */
-function fitToOnePage(element: HTMLElement): () => void {
+function fitToOnePage(element: HTMLElement, limit: number): () => void {
   const root = document.documentElement
   root.style.setProperty('--print-width', `${PAGE_WIDTH_PX}px`)
   root.classList.add('measuring-print')
   const height = element.scrollHeight
   root.classList.remove('measuring-print')
-  if (height <= PAGE_HEIGHT_PX) return () => {}
+  if (height <= limit) return () => {}
   // 반올림으로 몇 px 넘치는 일이 없도록 여유를 조금 둔다
-  const scale = Math.floor(((PAGE_HEIGHT_PX - 8) / height) * 1000) / 1000
+  const scale = Math.floor(((limit - 8) / height) * 1000) / 1000
   element.style.zoom = String(scale)
   return () => { element.style.zoom = '' }
 }
@@ -69,16 +87,43 @@ const LANDSCAPE_CSS = `
 }
 `
 
+/**
+ * 용지 방향을 못 바꾸는 브라우저용 — 세로 용지에 표를 눕혀 앉힌다.
+ *
+ * 종이의 긴 변(281mm)을 표의 가로로 쓰고 짧은 변(194mm)을 높이로 쓴다. 회전은 배치에
+ * 영향을 주지 않으므로, 감싸는 `main`에 돌린 뒤의 높이를 직접 주어 한 쪽으로 끝맺는다.
+ */
+const ROTATED_CSS = `
+@page { margin: 8mm; }
+@media print {
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+    position: relative;
+    height: ${PAGE_WIDTH_PX}px;
+  }
+  .print-only {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: ${PAGE_WIDTH_PX}px;
+    transform-origin: 0 0;
+    transform: rotate(90deg) translateY(-100%);
+  }
+}
+`
+
 export function printWithTitle(title: string, opts: PrintOptions = {}): void {
   const original = document.title
   const undo: Array<() => void> = []
   let sheet: HTMLStyleElement | null = null
   if (opts.landscape) {
+    const rotated = needsRotatedPrint(navigator.userAgent, navigator.maxTouchPoints > 1)
     // @page는 조건부로 쓸 수 없어 인쇄하는 동안만 규칙을 끼워 넣는다
     sheet = document.createElement('style')
-    sheet.textContent = LANDSCAPE_CSS
+    sheet.textContent = rotated ? ROTATED_CSS : LANDSCAPE_CSS
     document.head.appendChild(sheet)
-    undo.push(fitToOnePage(opts.landscape))
+    undo.push(fitToOnePage(opts.landscape, rotated ? ROTATED_HEIGHT_PX : PAGE_HEIGHT_PX))
   }
   const restore = () => {
     setDocumentTitle(original)
