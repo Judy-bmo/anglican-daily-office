@@ -26,6 +26,13 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Pages가 아직 꺼져 있으면 여기서 켠다.
+      # (Settings 화면에서 직접 켜지 않아도 되도록)
+      - name: Pages 켜기
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - run: npm ci
 
       - name: 교회력·성서정과 검증
