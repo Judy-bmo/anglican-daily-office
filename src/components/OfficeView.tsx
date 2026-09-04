@@ -385,7 +385,7 @@ export function OfficeView({
                   ? { background: 'var(--accent)', color: 'var(--paper)' }
                   : { border: '1px solid var(--rule)', color: 'var(--ink-muted)' }}
               >
-                {c.slot}
+                {c.slot})
                 <span className="ml-2 text-[0.85em]" style={{ opacity: 0.75 }}>{c.reference}</span>
               </button>
             ))}
