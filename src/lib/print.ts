@@ -134,13 +134,16 @@ const ROTATED_CSS = `
     max-width: none !important;
     padding: 0 !important;
     position: relative;
-    height: ${ROTATED_WIDTH_PX}px;
+    /* px로 적은 값은 이 브라우저가 종이에 맞춰 판을 통째로 늘이거나 줄이면
+       뜻을 잃는다. 인쇄에서 vh가 쪽 상자를 가리키면 그쪽이 정확하므로 둘 중
+       작은 쪽을 쓴다. vh가 화면 높이를 가리키더라도 지금보다 나빠지지 않는다. */
+    height: min(${ROTATED_WIDTH_PX}px, 92vh);
   }
   .print-only {
     position: absolute;
     top: 0;
     left: 0;
-    width: ${ROTATED_WIDTH_PX}px;
+    width: min(${ROTATED_WIDTH_PX}px, 92vh);
     transform-origin: 0 0;
     transform: rotate(90deg) translateY(-100%);
   }
