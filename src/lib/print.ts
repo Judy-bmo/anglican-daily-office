@@ -136,14 +136,15 @@ const ROTATED_CSS = `
     /* px로 적은 값은 이 브라우저가 종이에 맞춰 판을 통째로 늘이거나 줄이면
        뜻을 잃는다(800px으로 못박았더니 두 쪽으로 갈라졌다). vh가 쪽 상자를
        따라가므로 그쪽을 쓰고, px 값은 터무니없이 커지지 않게 막는 빗장으로만
-       둔다. 92vh일 때 종이의 6할쯤을 채웠으므로 그 비율로 되짚어 잡았다. */
-    height: min(${ROTATED_WIDTH_PX}px, 135vh);
+       둔다. 재어 본 값 — 92vh는 한 쪽에 들어가되 종이가 많이 남고, 135vh는
+       넘쳐서 두 쪽이 된다. 그 사이에서 넘칠 위험이 적은 쪽으로 잡는다. */
+    height: min(${ROTATED_WIDTH_PX}px, 110vh);
   }
   .print-only {
     position: absolute;
     top: 0;
     left: 0;
-    width: min(${ROTATED_WIDTH_PX}px, 135vh);
+    width: min(${ROTATED_WIDTH_PX}px, 110vh);
     transform-origin: 0 0;
     transform: rotate(90deg) translateY(-100%);
   }
