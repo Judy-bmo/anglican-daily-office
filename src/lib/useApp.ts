@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { describeDay, isoDate, toUtcDay, type ChurchDay } from './churchCalendar'
-import { loadFeasts, loadLectionary, loadOffices, loadPsalter } from './data'
+import { loadCanticles, loadFeasts, loadLectionary, loadOffices, loadPsalter } from './data'
 import { buildIndex, resolveLectionary, type LectionaryIndex, type OfficeLectionary } from './lectionary'
 import { applyFontScale, applySeasonColor, applyTheme } from './theme'
 import {
   DEFAULT_SETTINGS, allRecords, loadSettings, markCompleted, saveSettings,
   streakOf, unmarkCompleted, type PrayerRecord, type Settings,
 } from './storage'
-import type { Feast, OfficeDoc, OfficeId, Psalm } from './types'
+import type { Canticle, CanticleRule, Feast, OfficeDoc, OfficeId, Psalm } from './types'
 
 export interface AppData {
   offices: OfficeDoc[]
@@ -15,6 +15,10 @@ export interface AppData {
   psalter: Map<number, Psalm>
   feasts: Feast[]
   feastNotes: Array<{ month: number; text: string }>
+  /** 성무일과 송가 열세 편 (기도서 180~189쪽) */
+  canticles: Canticle[]
+  /** 요일·절기에 따른 송가 배정표 (180~181쪽) */
+  canticleTable: CanticleRule[]
 }
 
 export function useAppData() {
@@ -23,8 +27,8 @@ export function useAppData() {
 
   useEffect(() => {
     let alive = true
-    Promise.all([loadOffices(), loadLectionary(), loadPsalter(), loadFeasts()])
-      .then(([offices, lect, psalms, feasts]) => {
+    Promise.all([loadOffices(), loadLectionary(), loadPsalter(), loadFeasts(), loadCanticles()])
+      .then(([offices, lect, psalms, feasts, canticles]) => {
         if (!alive) return
         setData({
           offices,
@@ -32,6 +36,8 @@ export function useAppData() {
           psalter: new Map(psalms.map((p) => [p.number, p])),
           feasts: feasts.feasts,
           feastNotes: feasts.notes,
+          canticles: canticles.canticles,
+          canticleTable: canticles.table,
         })
       })
       .catch((e: Error) => alive && setError(e.message))

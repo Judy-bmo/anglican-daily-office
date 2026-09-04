@@ -1,5 +1,7 @@
 /** 정적 데이터 로더 — 한 번 받아 두고 재사용한다(오프라인 캐시는 서비스워커가 담당). */
-import type { BibleBook, BibleChapter, Feast, LectionaryDay, OfficeDoc, Psalm } from './types'
+import type {
+  BibleBook, BibleChapter, Canticle, CanticleRule, Feast, LectionaryDay, OfficeDoc, Psalm,
+} from './types'
 
 const BASE = `${import.meta.env.BASE_URL}data`
 const cache = new Map<string, Promise<unknown>>()
@@ -24,6 +26,9 @@ export const loadLectionary = () =>
 
 export const loadPsalter = () =>
   load<{ psalms: Psalm[] }>('psalter.json').then((d) => d.psalms)
+
+export const loadCanticles = () =>
+  load<{ canticles: Canticle[]; table: CanticleRule[] }>('canticles.json')
 
 export const loadFeasts = () =>
   load<{ feasts: Feast[]; notes: Array<{ month: number; text: string }> }>('feasts.json')

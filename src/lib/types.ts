@@ -103,3 +103,25 @@ export interface BibleChapter {
   chapter: number
   verses: BibleVerse[]
 }
+
+/** 성무일과 송가 한 편 (기도서 180~189쪽) */
+export interface Canticle {
+  name: string
+  /** 라틴어 첫 구절 — 예) Benedictus Dominus Deus */
+  latin: string | null
+  /** 성서 출처 — 「당신은 하느님」처럼 출처가 없는 것도 있다 */
+  ref: string | null
+  page: number
+  /** 「특별히 부활절기에 적합하다」 같은 안내 */
+  rubric: string | null
+  verses: Array<{ n: string; text: string }>
+}
+
+/** 요일·절기에 따라 어느 송가를 쓰는지 (기도서 180~181쪽 표) */
+export interface CanticleRule {
+  day: 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'feast'
+  office: 'morning' | 'evening'
+  season: 'ordinary' | 'advent' | 'lent' | 'easter'
+  /** 첫째는 1독서 뒤, 둘째는 2독서 뒤. 독서가 하나면 첫째만 한다 (180쪽) */
+  canticles: string[]
+}

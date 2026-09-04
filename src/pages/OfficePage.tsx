@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
-  OfficeView, optionGroups, optionLabel, preferredOption, readingChoices, speechChunks,
+  OfficeView, optionGroups, optionLabel, preferredOption, speechChunks,
 } from '../components/OfficeView'
 import { TtsBar } from '../components/TtsBar'
 import { formatKoreanDate } from '../components/DayHeader'
@@ -31,25 +31,25 @@ export function OfficePage({
   // 인쇄 전에 한자리에서 다시 고를 수 있도록 상태를 여기서 쥔다.
   const groups = useMemo(() => optionGroups(doc.blocks), [doc.blocks])
   const [chosen, setChosen] = useState<Record<string, number>>({})
-  const chunks = useMemo(() => speechChunks(doc, day, chosen), [doc, day, chosen])
+  // 대축일·주요축일에는 송가 배정표의 '대축일, 주의 축일' 항목을 쓴다 (기도서 181쪽)
+  const isFeast = useMemo(() => {
+    const [, mm, dd] = day.date.split('-').map(Number)
+    return data.feasts.some((f) =>
+      f.month === mm
+      && (f.day === dd || (f.dayEnd !== undefined && dd >= f.day && dd <= f.dayEnd))
+      && (f.rank === 'principal' || f.rank === 'major'))
+  }, [data.feasts, day.date])
+
+  const chunks = useMemo(
+    () => speechChunks(doc, day, chosen,
+                       { list: data.canticles, table: data.canticleTable, isFeast }),
+    [doc, day, chosen, data.canticles, data.canticleTable, isFeast],
+  )
   const [printOpen, setPrintOpen] = useState(false)
   const [showOthers, setShowOthers] = useState(false)
   const choose = (id: string, index: number) => setChosen((c) => ({ ...c, [id]: index }))
   const pickOf = (g: (typeof groups)[number]) => chosen[g.id] ?? preferredOption(g.options, day)
 
-  // 성서독서는 기도서도 "하나 혹은 둘을 읽을 수 있다"고 하므로 골라 담을 수 있게 한다
-  const choices = useMemo(
-    () => readingChoices(lectionary, doc.office === 'evening'),
-    [lectionary, doc.office],
-  )
-  const [readings, setReadings] = useState<Set<string> | null>(null)
-  const shownReadings = readings ?? new Set(choices.map((c) => c.key))
-  const toggleReading = (key: string) => {
-    const next = new Set(shownReadings)
-    if (next.has(key)) next.delete(key)
-    else next.add(key)
-    setReadings(next)
-  }
 
   return (
     <div>
@@ -114,30 +114,6 @@ export function OfficePage({
             </div>
           )}
 
-          {choices.length > 0 && (
-            <div className="mb-4">
-              <span className="mb-1 block text-sm" style={{ color: 'var(--ink-muted)' }}>성서독서</span>
-              <div className="grid gap-2">
-                {choices.map((c) => (
-                  <label key={c.key} className="flex items-center gap-3 text-sm">
-                    <input
-                      type="checkbox"
-                      checked={shownReadings.has(c.key)}
-                      onChange={() => toggleReading(c.key)}
-                    />
-                    <span>
-                      <span style={{ color: 'var(--ink-faint)' }}>{c.slot}</span>
-                      {' '}
-                      <span style={{ color: 'var(--accent)' }}>{c.reference}</span>
-                    </span>
-                  </label>
-                ))}
-              </div>
-              <p className="mt-1 text-xs" style={{ color: 'var(--ink-faint)' }}>
-                기도서는 “성서독서는 하나 혹은 둘을 읽을 수 있다”고 합니다.
-              </p>
-            </div>
-          )}
 
           <label className="mb-4 flex items-center gap-3 text-sm">
             <input type="checkbox" checked={showOthers} onChange={(e) => setShowOthers(e.target.checked)} />
@@ -168,7 +144,7 @@ export function OfficePage({
         chosen={chosen}
         onChoose={choose}
         showOtherOptions={showOthers}
-        readings={shownReadings}
+        isFeast={isFeast}
         speakingId={speakingId}
       />
 

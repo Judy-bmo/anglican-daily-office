@@ -2,7 +2,8 @@ import { useMemo } from 'react'
 import type { ChurchDay } from '../lib/churchCalendar'
 import type { OfficeLectionary } from '../lib/lectionary'
 import type { AppData } from '../lib/useApp'
-import type { OfficeBlock, OfficeDoc } from '../lib/types'
+import type { Canticle, CanticleRule, OfficeBlock, OfficeDoc } from '../lib/types'
+import { assignedCanticles, canticleLabel } from '../lib/canticles'
 import { PsalmBlock } from './PsalmBlock'
 import { ReadingBlock } from './ReadingBlock'
 import { speechText } from '../lib/tts'
@@ -143,8 +144,8 @@ interface Props {
   speakingId?: string | null
   /** 인쇄물에 고르지 않은 선택지도 함께 적을지 */
   showOtherOptions?: boolean
-  /** 보여 줄 독서 (없으면 그날 독서를 모두 보여 준다) */
-  readings?: Set<string>
+  /** 대축일·주요축일인가 — 송가 배정표의 '대축일, 주의 축일' 항목을 쓴다 */
+  isFeast?: boolean
 }
 
 const SLOT_NAMES: Record<string, string> = { ot: '구약', epistle: '서신', gospel: '복음' }
@@ -180,7 +181,7 @@ export function readingChoices(
 
 export function OfficeView({
   doc, day, lectionary, data, showBibleText, chosen, onChoose,
-  speakingId, showOtherOptions = false, readings,
+  speakingId, showOtherOptions = false, isFeast = false,
 }: Props) {
   const plan = useMemo(() => buildPlan(doc.blocks), [doc.blocks])
   const isEvening = doc.office === 'evening'
@@ -256,9 +257,109 @@ export function OfficeView({
     )
   }
 
-  const readingSection = () => {
+  /** 송가 한 편 */
+  const canticleBlock = (c: Canticle, key: string) => (
+    <div key={key} className="office-section my-4">
+      <p className="mb-2 font-medium">
+        {c.name}
+        {c.latin && (
+          <span className="ml-2 text-[0.85em] italic" style={{ color: 'var(--ink-muted)' }}>{c.latin}</span>
+        )}
+        {c.ref && (
+          <span className="ml-2 text-[0.85em]" style={{ color: 'var(--ink-faint)' }}>{c.ref}</span>
+        )}
+      </p>
+      {c.rubric && (
+        <p className="my-2 text-[0.9em] italic" style={{ color: 'var(--accent)' }}>{c.rubric}</p>
+      )}
+      {c.verses.map((v, i) => (
+        <p key={i} id={`${key}-${i}`}
+           className={`prayer-text my-1 flex gap-3 ${speakingId === `${key}-${i}` ? 'speaking' : ''}`}>
+          <span className="shrink-0 pt-1 text-xs tabular-nums"
+                style={{ color: 'var(--ink-faint)', minWidth: '1.9rem', textAlign: 'right' }}>
+            {v.n}
+          </span>
+          <span>{v.text}</span>
+        </p>
+      ))}
+    </div>
+  )
+
+  /** 고르는 칸 하나 — 인쇄물에는 고른 결과만 남는다 */
+  const chooser = (
+    id: string, label: string, value: number, items: Array<{ value: number; text: string }>,
+  ) => (
+    <div className="no-print mb-3">
+      <label className="mb-1 block text-sm" style={{ color: 'var(--ink-muted)' }} htmlFor={id}>
+        {label}
+      </label>
+      <select
+        id={id}
+        className="tap w-full min-w-0 rounded-lg border px-3 py-2 text-sm"
+        style={{ borderColor: 'var(--rule)', background: 'var(--paper-raised)', color: 'var(--ink)' }}
+        value={value}
+        onChange={(e) => onChoose(id, Number(e.target.value))}
+      >
+        {items.map((o) => <option key={o.value} value={o.value}>{o.text}</option>)}
+      </select>
+    </div>
+  )
+
+  /**
+   * 성서독서와 독서 후 송가.
+   *
+   * 기도서 180쪽: "모든 독서 후에는 송가를 한다. … 독서가 하나일 경우 첫 번째 송가를
+   * 한다." 그래서 독서를 몰아서 보이지 않고 [1독서 → 송가 → 2독서 → 송가] 차례로 둔다.
+   * 어느 독서를 1독서로 삼을지, 어느 송가를 부를지 모두 고를 수 있고, 고르지 않으면
+   * 그날 정과의 차례와 180~181쪽 배정표를 따른다.
+   */
+  const readingSection = (outro: (prefix: string) => React.ReactNode) => {
     if (!lectionary) return <p style={{ color: 'var(--ink-faint)' }}>오늘의 독서를 찾지 못했습니다.</p>
+    const all = readingChoices(lectionary, isEvening)
+    const assigned = assignedCanticles(data.canticleTable, day, doc.office, isFeast)
     const eve = isEvening ? lectionary.eve : undefined
+
+    const readAt = (slot: number) =>
+      chosen[`read-${slot + 1}`] ?? (slot < all.length ? slot : -1)
+    const cantAt = (slot: number) => {
+      const saved = chosen[`cant-${slot + 1}`]
+      if (saved !== undefined) return saved
+      const name = assigned[slot]
+      return name ? data.canticles.findIndex((c) => c.name === name) : -1
+    }
+
+    const slotNode = (slot: number) => {
+      const ri = readAt(slot)
+      const ci = cantAt(slot)
+      const reading = ri >= 0 ? all[ri] : undefined
+      const canticle = ci >= 0 ? data.canticles[ci] : undefined
+      return (
+        <div key={`slot-${slot}`} className={slot ? 'mt-8' : undefined}>
+          {chooser(`read-${slot + 1}`, `${slot + 1}독서`, ri, [
+            ...all.map((c, i) => ({ value: i, text: `${c.slot} ${c.reference}` })),
+            { value: -1, text: '읽지 않음' },
+          ])}
+          {reading && (
+            <>
+              <ReadingBlock
+                reference={reading.reference}
+                slot={`${slot + 1}독서 · ${reading.slot}`}
+                color={day.color}
+                showText={showBibleText}
+                alternates={slot === 0 ? lectionary.alternates : undefined}
+              />
+              {outro(`out-${slot}`)}
+            </>
+          )}
+          {chooser(`cant-${slot + 1}`, '독서 후 송가', ci, [
+            ...data.canticles.map((c, i) => ({ value: i, text: canticleLabel(c) })),
+            { value: -1, text: '하지 않음' },
+          ])}
+          {canticle && canticleBlock(canticle, `cant-${slot}`)}
+        </div>
+      )
+    }
+
     return (
       <>
         <p className="mb-4 text-sm" style={{ color: 'var(--ink-muted)' }}>
@@ -266,23 +367,7 @@ export function OfficeView({
           {lectionary.year !== 'both' && ` · ${lectionary.year}해`}
           {eve && ` · 저녁은 「${eve.label}」 정과를 씁니다`}
         </p>
-        {(() => {
-          const all = readingChoices(lectionary, isEvening)
-          const shown = all.filter((c) => !readings || readings.has(c.key))
-          if (!shown.length) {
-            return <p style={{ color: 'var(--ink-faint)' }}>고른 독서가 없습니다.</p>
-          }
-          return shown.map((c, i) => (
-            <ReadingBlock
-              key={c.key}
-              reference={c.reference}
-              slot={c.slot}
-              color={day.color}
-              showText={showBibleText}
-              alternates={i === shown.length - 1 ? lectionary.alternates : undefined}
-            />
-          ))
-        })()}
+        {[0, 1].map(slotNode)}
         {eve && (
           <div className="mt-6 border-t pt-4" style={{ borderColor: 'var(--rule)' }}>
             <p className="mb-3 text-sm" style={{ color: 'var(--accent)' }}>{eve.label}</p>
@@ -356,12 +441,20 @@ export function OfficeView({
     )
   }
 
-  const renderItem = (item: PlanItem, i: number) =>
-    item.kind === 'options' ? renderOptions(item) : renderBlock(item.block, String(i))
+  const renderItem = (item: PlanItem, key: string) =>
+    item.kind === 'options' ? renderOptions(item) : renderBlock(item.block, key)
 
   /* 성서정과를 절 안에서 어디에 끼울지 — 기도서 편집 순서를 따른다.
      성서독서:  ※ 안내 지시문 → ○ "1(2)독서는 …말씀입니다" → [독서 본문] → ※ 낭독 후 응답
      오늘의 시편: ※ 안내 지시문 → [시편] (송영은 시편마다 이미 붙어 있다) */
+  // 합쳐 놓은 '독서 후 송가' 절의 번호 — 표제에 함께 적어 번호가 건너뛰지 않게 한다
+  const canticleSectionN = doc.lectionaryLinked
+    ? plan.find((x) => x.kind === 'block' && x.block.type === 'section'
+                       && (x.block.title ?? '').includes('독서 후 송가'))
+    : undefined
+  const canticleN = canticleSectionN && canticleSectionN.kind === 'block'
+    ? canticleSectionN.block.n : undefined
+
   const nodes: React.ReactNode[] = []
   for (let i = 0; i < plan.length; i++) {
     const item = plan[i]
@@ -371,8 +464,19 @@ export function OfficeView({
       ? (title.includes('오늘의 시편') ? 'psalms' : title.includes('성서독서') ? 'readings' : null)
       : null
 
+    // 독서 후 송가는 이제 독서마다 그 자리에서 부르므로 절을 따로 두지 않는다
+    if (doc.lectionaryLinked && isSection && title.includes('독서 후 송가')) {
+      let end = i + 1
+      while (end < plan.length
+             && !(plan[end].kind === 'block' && (plan[end] as { block: OfficeBlock }).block.type === 'section')) {
+        end++
+      }
+      i = end - 1
+      continue
+    }
+
     if (!slot) {
-      nodes.push(renderItem(item, i))
+      nodes.push(renderItem(item, String(i)))
       continue
     }
 
@@ -391,10 +495,19 @@ export function OfficeView({
 
     nodes.push(
       <div key={`sec-${i}`}>
-        {renderItem(item, i)}
-        {intro.map((x, n) => renderItem(x, i + 1 + n))}
-        {slot === 'psalms' ? psalmSection() : readingSection()}
-        {outro.map((x, n) => renderItem(x, i + 1 + outroAt + n))}
+        {slot === 'readings' && isSection ? (
+          <h3 className="mt-10 mb-3 flex items-baseline gap-2 border-b pb-1 text-[1.05em] font-semibold"
+              style={{ borderColor: 'var(--rule)' }}>
+            <span className="tabular-nums" style={{ color: 'var(--accent)' }}>
+              {canticleN ? `${item.block.n}·${canticleN}` : item.block.n}
+            </span>
+            {canticleN ? '성서독서와 송가' : item.block.title}
+          </h3>
+        ) : renderItem(item, String(i))}
+        {intro.map((x, n) => renderItem(x, `${i}-in-${n}`))}
+        {slot === 'psalms'
+          ? psalmSection()
+          : readingSection((prefix) => outro.map((x, n) => renderItem(x, `${prefix}-${n}`)))}
       </div>,
     )
     i = end - 1
@@ -406,9 +519,37 @@ export function OfficeView({
 /** 낭독용 구간 목록 — 화면에 그린 순서와 같게 만든다. */
 export function speechChunks(
   doc: OfficeDoc, day: ChurchDay, chosen: Record<string, number> = {},
+  canticles?: { list: Canticle[]; table: CanticleRule[]; isFeast?: boolean },
 ): Array<{ id: string; text: string }> {
   const out: Array<{ id: string; text: string }> = []
+  // 독서 후 송가는 절이 아니라 독서 뒤에 붙으므로, 그 절의 선택지 대신 고른 송가를 읽는다
+  let skipping = false
   buildPlan(doc.blocks).forEach((item, i) => {
+    const isSection = item.kind === 'block' && item.block.type === 'section'
+    if (doc.lectionaryLinked && isSection) {
+      if ((item.block.title ?? '').includes('독서 후 송가')) {
+        skipping = true
+        if (canticles) {
+          const assigned = assignedCanticles(canticles.table, day, doc.office, canticles.isFeast)
+          for (const slot of [0, 1]) {
+            const saved = chosen[`cant-${slot + 1}`]
+            const at = saved !== undefined
+              ? saved
+              : (assigned[slot] ? canticles.list.findIndex((c) => c.name === assigned[slot]) : -1)
+            const c = at >= 0 ? canticles.list[at] : undefined
+            if (!c) continue
+            out.push({ id: `cant-${slot}-h`, text: speechText(c.name) })
+            c.verses.forEach((v, vi) => {
+              const text = speechText(v.text)
+              if (text) out.push({ id: `cant-${slot}-${vi}`, text })
+            })
+          }
+        }
+        return
+      }
+      skipping = false
+    }
+    if (skipping) return
     const push = (b: OfficeBlock, key: string) => {
       if (b.type === 'title') return
       const text = speechText(b.text ?? b.title ?? '')
