@@ -4,6 +4,7 @@ import type { OfficeLectionary } from '../lib/lectionary'
 import type { AppData } from '../lib/useApp'
 import type { Canticle, CanticleRule, OfficeBlock, OfficeDoc } from '../lib/types'
 import { assignedCanticles, canticleLabel } from '../lib/canticles'
+import { resolveCollect } from '../lib/collects'
 import { PsalmBlock } from './PsalmBlock'
 import { ReadingBlock } from './ReadingBlock'
 import { speechText } from '../lib/tts'
@@ -385,6 +386,39 @@ export function OfficeView({
     )
   }
 
+  /**
+   * 오늘의 본기도.
+   *
+   * 예식문은 「교회력에 따른 오늘의 본기도를 드린다」고만 적어 두었고, 기도문은
+   * 41~84쪽에 따로 실려 있다. 주일에는 그해 주기의 기도를, 평일에는 그 주간의
+   * 기도를 드린다. 한 날에 기도가 여럿이면 모두 보이고 고를 수 있게 한다.
+   */
+  const collectSection = () => {
+    const hit = resolveCollect(data.collects, day)
+    if (!hit) return <p style={{ color: 'var(--ink-faint)' }}>오늘의 본기도를 찾지 못했습니다.</p>
+    const at = hit.texts.length > 1
+      ? Math.min(chosen['collect'] ?? 0, hit.texts.length - 1)
+      : 0
+    return (
+      <div className="office-section">
+        <p className="mb-3 text-sm" style={{ color: 'var(--ink-muted)' }}>
+          {hit.source.name}
+          {hit.cycle !== '전부' && ` · ${hit.cycle}${hit.cycle === '주간' ? '' : '해'}`}
+          <span style={{ color: 'var(--ink-faint)' }}> · 기도서 {hit.source.page}쪽</span>
+        </p>
+        {hit.source.rubric && (
+          <p className="my-3 text-[0.9em] italic" style={{ color: 'var(--accent)' }}>{hit.source.rubric}</p>
+        )}
+        {hit.texts.length > 1 && chooser('collect', '기도문', at,
+          hit.texts.map((t, i) => ({ value: i, text: `${i + 1}) ${t.slice(0, 28)}…` })))}
+        <p id="collect-text"
+           className={`prayer-text my-2 ${speakingId === 'collect-text' ? 'speaking' : ''}`}>
+          {hit.texts[at]}
+        </p>
+      </div>
+    )
+  }
+
   /** 선택지 묶음 하나를 그린다. */
   const renderOptions = (item: Extract<PlanItem, { kind: 'options' }>) => {
     const pick = chosen[item.id] ?? preferredOption(item.options, day)
@@ -461,7 +495,9 @@ export function OfficeView({
     const isSection = item.kind === 'block' && item.block.type === 'section'
     const title = isSection ? (item.block.title ?? '') : ''
     const slot = doc.lectionaryLinked && isSection
-      ? (title.includes('오늘의 시편') ? 'psalms' : title.includes('성서독서') ? 'readings' : null)
+      ? (title.includes('오늘의 시편') ? 'psalms'
+        : title.includes('성서독서') ? 'readings'
+        : title.includes('오늘의 본기도') ? 'collect' : null)
       : null
 
     // 독서 후 송가는 이제 독서마다 그 자리에서 부르므로 절을 따로 두지 않는다
@@ -489,8 +525,9 @@ export function OfficeView({
     const body = plan.slice(i + 1, end)
     // 두 번째 지시문부터가 '낭독 후' 부분이다
     const outroAt = body.findIndex((x, n) => n > 0 && x.kind === 'block' && x.block.type === 'rubric')
-    const intro = slot === 'readings' ? (outroAt < 0 ? body : body.slice(0, outroAt)) : body.filter(
-      (x) => x.kind === 'block' && x.block.type === 'rubric')
+    const intro = slot === 'readings' ? (outroAt < 0 ? body : body.slice(0, outroAt))
+      : slot === 'collect' ? body
+      : body.filter((x) => x.kind === 'block' && x.block.type === 'rubric')
     const outro = slot === 'readings' && outroAt >= 0 ? body.slice(outroAt) : []
 
     nodes.push(
@@ -505,8 +542,8 @@ export function OfficeView({
           </h3>
         ) : renderItem(item, String(i))}
         {intro.map((x, n) => renderItem(x, `${i}-in-${n}`))}
-        {slot === 'psalms'
-          ? psalmSection()
+        {slot === 'psalms' ? psalmSection()
+          : slot === 'collect' ? collectSection()
           : readingSection((prefix) => outro.map((x, n) => renderItem(x, `${prefix}-${n}`)))}
       </div>,
     )

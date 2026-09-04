@@ -13,6 +13,7 @@ STEPS = [
     ("성무일과 성서정과표 (484~524쪽)", "parse_lectionary.py"),
     ("시편 (526~764쪽)", "parse_psalter.py"),
     ("성무일과 송가 (180~189쪽)", "parse_canticles.py"),
+    ("주일 본기도 (41~84쪽)", "parse_collects.py"),
     ("월별 축일 (32~38쪽)", "parse_feasts.py"),
 ]
 
