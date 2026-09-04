@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react'
 import {
-  OfficeView, optionGroups, optionLabel, preferredOption, speechChunks,
+  OfficeView, defaultReadingMask, optionGroups, optionLabel, preferredOption,
+  readingChoices, speechChunks, toggleReadingMask,
 } from '../components/OfficeView'
+import { assignedCanticles, canticleLabel } from '../lib/canticles'
+import { resolveCollect } from '../lib/collects'
 import { TtsBar } from '../components/TtsBar'
 import { formatKoreanDate } from '../components/DayHeader'
 import { officePrintTitle, printWithTitle } from '../lib/print'
@@ -29,7 +32,13 @@ export function OfficePage({
 
   // 선택지(시편·성서소구·본기도 …)는 화면에서 고른 것이 낭독·인쇄에 그대로 쓰인다.
   // 인쇄 전에 한자리에서 다시 고를 수 있도록 상태를 여기서 쥔다.
-  const groups = useMemo(() => optionGroups(doc.blocks), [doc.blocks])
+  // 「독서 후 송가」 절은 이제 독서마다 그 자리에서 부르므로 절로 그리지 않는다.
+  // 그 절의 선택칸이 인쇄 패널에 남으면 바꿔도 아무 일이 없어 헷갈린다.
+  const groups = useMemo(
+    () => optionGroups(doc.blocks)
+      .filter((g) => !(doc.lectionaryLinked && g.section.includes('독서 후 송가'))),
+    [doc.blocks, doc.lectionaryLinked],
+  )
   const [chosen, setChosen] = useState<Record<string, number>>({})
   // 대축일·주요축일에는 송가 배정표의 '대축일, 주의 축일' 항목을 쓴다 (기도서 181쪽)
   const isFeast = useMemo(() => {
@@ -39,6 +48,22 @@ export function OfficePage({
       && (f.day === dd || (f.dayEnd !== undefined && dd >= f.day && dd <= f.dayEnd))
       && (f.rank === 'principal' || f.rank === 'major'))
   }, [data.feasts, day.date])
+
+  // 인쇄 패널에서도 독서·송가·본기도를 고를 수 있도록, 본문과 같은 값을 쓴다
+  const choices = useMemo(
+    () => readingChoices(lectionary, doc.office === 'evening'),
+    [lectionary, doc.office],
+  )
+  const readMask = chosen['readings'] ?? defaultReadingMask(choices.length)
+  const assigned = assignedCanticles(data.canticleTable, day, doc.office, isFeast)
+  const cantAt = (slot: number) => {
+    const saved = chosen[`cant-${slot + 1}`]
+    if (saved !== undefined) return saved
+    const name = assigned[slot]
+    return name ? data.canticles.findIndex((c) => c.name === name) : -1
+  }
+  const pickedCount = choices.filter((_, i) => readMask & (1 << i)).length
+  const collect = doc.lectionaryLinked ? resolveCollect(data.collects, day) : null
 
   const chunks = useMemo(
     () => speechChunks(doc, day, chosen,
@@ -114,6 +139,72 @@ export function OfficePage({
             </div>
           )}
 
+
+          {doc.lectionaryLinked && choices.length > 0 && (
+            <div className="mb-4">
+              <span className="mb-2 block text-sm" style={{ color: 'var(--ink-muted)' }}>
+                성서독서 — 하나 혹은 둘
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {choices.map((c, i) => {
+                  const on = (readMask & (1 << i)) !== 0
+                  return (
+                    <button
+                      key={c.key}
+                      aria-pressed={on}
+                      onClick={() => choose('readings', toggleReadingMask(readMask, i, choices.length))}
+                      className="tap rounded-full px-4 py-1.5 text-sm"
+                      style={on
+                        ? { background: 'var(--accent)', color: 'var(--paper)' }
+                        : { border: '1px solid var(--rule)', color: 'var(--ink-muted)' }}
+                    >
+                      {c.slot})
+                      <span className="ml-2 text-[0.85em]" style={{ opacity: 0.75 }}>{c.reference}</span>
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {doc.lectionaryLinked && data.canticles.length > 0 && (
+            <div className="mb-4 grid gap-3">
+              {Array.from({ length: Math.max(pickedCount, 1) }, (_, slot) => (
+                <label key={slot} className="block text-sm">
+                  <span className="mb-1 block" style={{ color: 'var(--ink-muted)' }}>
+                    {slot + 1}독서 후 송가
+                  </span>
+                  <select
+                    className="tap w-full min-w-0 rounded-lg border px-3 py-2 text-sm"
+                    style={{ borderColor: 'var(--rule)', background: 'var(--paper-raised)', color: 'var(--ink)' }}
+                    value={cantAt(slot)}
+                    onChange={(e) => choose(`cant-${slot + 1}`, Number(e.target.value))}
+                  >
+                    {data.canticles.map((c, i) => (
+                      <option key={c.name} value={i}>{canticleLabel(c)}</option>
+                    ))}
+                    <option value={-1}>하지 않음</option>
+                  </select>
+                </label>
+              ))}
+            </div>
+          )}
+
+          {collect && collect.texts.length > 1 && (
+            <label className="mb-4 block text-sm">
+              <span className="mb-1 block" style={{ color: 'var(--ink-muted)' }}>오늘의 본기도</span>
+              <select
+                className="tap w-full min-w-0 rounded-lg border px-3 py-2 text-sm"
+                style={{ borderColor: 'var(--rule)', background: 'var(--paper-raised)', color: 'var(--ink)' }}
+                value={Math.min(chosen['collect'] ?? 0, collect.texts.length - 1)}
+                onChange={(e) => choose('collect', Number(e.target.value))}
+              >
+                {collect.texts.map((t, i) => (
+                  <option key={i} value={i}>{i + 1}) {t.slice(0, 30)}…</option>
+                ))}
+              </select>
+            </label>
+          )}
 
           <label className="mb-4 flex items-center gap-3 text-sm">
             <input type="checkbox" checked={showOthers} onChange={(e) => setShowOthers(e.target.checked)} />

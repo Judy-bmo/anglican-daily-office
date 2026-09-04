@@ -165,6 +165,25 @@ export interface ReadingChoice {
  * 보통은 구약·서신·복음 셋이고, 고난주일·부활주일처럼 아침/저녁 독서가 따로 지정된
  * 날은 기도서가 적어 둔 제1·제2독서를 그대로 쓴다.
  */
+/** 기도서 「성서독서는 하나 혹은 둘을 할 수 있다」 (147쪽) */
+export const MAX_READINGS = 2
+
+/** 처음에는 그날 정과의 앞에서부터 둘을 담는다 */
+export function defaultReadingMask(count: number): number {
+  let m = 0
+  for (let i = 0; i < Math.min(count, MAX_READINGS); i++) m |= 1 << i
+  return m
+}
+
+/** 담고 빼기 — 셋째를 담으면 첫째가 빠진다 */
+export function toggleReadingMask(mask: number, i: number, count: number): number {
+  let next = mask ^ (1 << i)
+  const on: number[] = []
+  for (let k = 0; k < count; k++) if (next & (1 << k)) on.push(k)
+  if (on.length > MAX_READINGS) next &= ~(1 << on[0])
+  return next
+}
+
 export function readingChoices(
   lectionary: OfficeLectionary | null, isEvening: boolean,
 ): ReadingChoice[] {
@@ -322,17 +341,10 @@ export function OfficeView({
 
     // 기도서 「성서독서는 하나 혹은 둘을 할 수 있다」 — 셋 가운데 골라 담고,
     // 담긴 차례대로 1독서·2독서로 매긴다. 고른 것은 자릿수로 기억한다.
-    const MAX = 2
-    const mask = chosen['readings'] ?? all.slice(0, MAX).reduce((m, _, i) => m | (1 << i), 0)
+    const mask = chosen['readings'] ?? defaultReadingMask(all.length)
     const on = (i: number) => (mask & (1 << i)) !== 0
     const picked = all.map((c, i) => ({ c, i })).filter(({ i }) => on(i))
-
-    const toggle = (i: number) => {
-      let next = mask ^ (1 << i)
-      const list = all.map((_, k) => k).filter((k) => next & (1 << k))
-      if (list.length > MAX) next &= ~(1 << list[0])      // 셋째를 담으면 첫째를 뺀다
-      onChoose('readings', next)
-    }
+    const toggle = (i: number) => onChoose('readings', toggleReadingMask(mask, i, all.length))
 
     const cantAt = (slot: number) => {
       const saved = chosen[`cant-${slot + 1}`]
