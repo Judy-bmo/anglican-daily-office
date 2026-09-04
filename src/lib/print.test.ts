@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { describeDay } from './churchCalendar'
-import { monthPrintTitle, needsRotatedPrint, officePrintTitle } from './print'
+import { monthPrintTitle, needsPortraitPrint, officePrintTitle } from './print'
 import { referenceFileName } from './shareCard'
 
 describe('인쇄·PDF 파일 이름', () => {
@@ -44,16 +44,16 @@ describe('용지 방향을 못 바꾸는 브라우저 가리기', () => {
   const WIN = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36'
   const ANDROID = 'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Mobile Safari/537.36'
 
-  it('iOS는 눕혀 앉힌다', () => {
-    expect(needsRotatedPrint(IPHONE, true)).toBe(true)
-    expect(needsRotatedPrint(IPAD_OLD, true)).toBe(true)
+  it('iOS는 세로로 인쇄한다', () => {
+    expect(needsPortraitPrint(IPHONE, true)).toBe(true)
+    expect(needsPortraitPrint(IPAD_OLD, true)).toBe(true)
     // iPadOS 13+ 는 데스크톱 사파리와 같은 UA를 보내므로 터치로 가른다
-    expect(needsRotatedPrint(MAC, true)).toBe(true)
+    expect(needsPortraitPrint(MAC, true)).toBe(true)
   })
 
   it('용지 방향을 지정할 수 있는 브라우저는 그대로 가로 인쇄한다', () => {
-    expect(needsRotatedPrint(MAC, false)).toBe(false)
-    expect(needsRotatedPrint(WIN, false)).toBe(false)
-    expect(needsRotatedPrint(ANDROID, false)).toBe(false)
+    expect(needsPortraitPrint(MAC, false)).toBe(false)
+    expect(needsPortraitPrint(WIN, false)).toBe(false)
+    expect(needsPortraitPrint(ANDROID, false)).toBe(false)
   })
 })

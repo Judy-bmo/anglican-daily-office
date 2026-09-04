@@ -39,20 +39,23 @@ const PAGE_WIDTH_PX = Math.round((297 - 16) * 96 / 25.4)
 /** 210mm − 위아래 여백이면 726px이지만, 머리말·꼬리말을 켜 둔 경우까지 감안한다. */
 const PAGE_HEIGHT_PX = 660
 /**
- * 세로 용지에 눕혀 앉힐 때 쓸 수 있는 판면.
+ * 이 브라우저가 용지 방향을 못 바꾸는가.
  *
- * 돌려 놓으면 내용의 가로가 종이의 긴 변, 내용의 세로가 짧은 변을 차지한다.
- * 문제는 이 브라우저가 @page의 여백 지정도 무시한다는 것이다. 게다가 인쇄물
- * 위아래에 주소와 날짜, 쪽 번호를 적은 띠를 스스로 붙인다. 판면을 A4에 딱
- * 맞춰 놓았더니 그 띠만큼 모자라, 돌린 뒤 맨 아래로 가는 토요일 열이 다음
- * 장으로 밀려났다. 그래서 A4·레터 가운데 작은 쪽에서 여백과 띠를 넉넉히 빼고
- * 잡는다.
- * 실제로 아이폰에서 251mm가 넘쳤고 넘친 정도로 되짚으면 쓸 수 있는 세로는
- * 230mm쯤이다. 그보다 넉넉히 212mm로 잡는다. 달력은 짧은 변에 여유가 많으므로
- * (152mm / 180mm) 긴 변을 줄여도 칸이 좁아지지 않는다.
+ * iOS·iPadOS의 웹킷은 @page의 size도 margin도 무시하고, 인쇄물 위아래에 주소와
+ * 쪽 번호를 적은 띠까지 스스로 붙인다. 그래서 가로로 눕혀 달라고 해도 세로로
+ * 나온다. 내용을 90도 돌려 앉히는 방법도 써 보았지만, 돌린 상자를 이 브라우저가
+ * 제대로 세지 못해 마지막 열이 다음 장으로 밀려났다.
+ *
+ * 다행히 달력 표는 세로 판면(178mm)에 넣어도 184mm밖에 되지 않고 칸에서 넘치는
+ * 글도 없다. 그래서 이런 브라우저에서는 눕히지 않고 세로 그대로 인쇄한다.
+ * 흐름대로 놓이므로 쪽 나눔이 어긋날 일이 없다.
  */
-const ROTATED_WIDTH_PX = 800
-const ROTATED_HEIGHT_PX = 680
+export function needsPortraitPrint(ua: string, hasTouch: boolean): boolean {
+  if (/iPad|iPhone|iPod/.test(ua)) return true
+  // iPadOS 13부터는 데스크톱 사파리와 같은 UA를 보내므로 터치 여부로 가른다
+  return /Macintosh/.test(ua) && hasTouch
+}
+
 /** A4 세로에서 본문이 차지하는 폭 — main의 42rem과 판면(210mm − 좌우 32mm)이 거의 같다 */
 const PORTRAIT_WIDTH_PX = 672
 /**
@@ -107,12 +110,6 @@ const LANDSCAPE_CSS = `
 `
 
 /**
- * 용지 방향을 못 바꾸는 브라우저용 — 세로 용지에 표를 눕혀 앉힌다.
- *
- * 종이의 긴 변(281mm)을 표의 가로로 쓰고 짧은 변(194mm)을 높이로 쓴다. 회전은 배치에
- * 영향을 주지 않으므로, 감싸는 `main`에 돌린 뒤의 높이를 직접 주어 한 쪽으로 끝맺는다.
- */
-/**
  * 세로 그대로 인쇄하되 본문 폭을 판면에 맞추는 규칙.
  *
  * 화면용 좌우 여백이 남아 있으면 잰 폭과 실제 인쇄 폭이 어긋나 배율이 틀어진다.
@@ -127,47 +124,24 @@ const PORTRAIT_FIT_CSS = `
 }
 `
 
-const ROTATED_CSS = `
-@page { margin: 8mm; }
-@media print {
-  main {
-    max-width: none !important;
-    padding: 0 !important;
-    position: relative;
-    /* px로 적은 값은 이 브라우저가 종이에 맞춰 판을 통째로 늘이거나 줄이면
-       뜻을 잃는다. 인쇄에서 vh가 쪽 상자를 가리키면 그쪽이 정확하므로 둘 중
-       작은 쪽을 쓴다. vh가 화면 높이를 가리키더라도 지금보다 나빠지지 않는다. */
-    height: min(${ROTATED_WIDTH_PX}px, 92vh);
-  }
-  .print-only {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: min(${ROTATED_WIDTH_PX}px, 92vh);
-    transform-origin: 0 0;
-    transform: rotate(90deg) translateY(-100%);
-  }
-}
-`
-
 export function printWithTitle(title: string, opts: PrintOptions = {}): void {
   const original = document.title
   const undo: Array<() => void> = []
   let sheet: HTMLStyleElement | null = null
-  if (opts.landscape) {
-    const rotated = needsRotatedPrint(navigator.userAgent, navigator.maxTouchPoints > 1)
+  const portraitOnly = opts.landscape
+    && needsPortraitPrint(navigator.userAgent, navigator.maxTouchPoints > 1)
+  if (opts.landscape && !portraitOnly) {
     // @page는 조건부로 쓸 수 없어 인쇄하는 동안만 규칙을 끼워 넣는다
     sheet = document.createElement('style')
-    sheet.textContent = rotated ? ROTATED_CSS : LANDSCAPE_CSS
+    sheet.textContent = LANDSCAPE_CSS
     document.head.appendChild(sheet)
-    undo.push(rotated
-      ? fitToOnePage(opts.landscape, ROTATED_WIDTH_PX, ROTATED_HEIGHT_PX)
-      : fitToOnePage(opts.landscape, PAGE_WIDTH_PX, PAGE_HEIGHT_PX))
-  } else if (opts.fitPortrait) {
+    undo.push(fitToOnePage(opts.landscape, PAGE_WIDTH_PX, PAGE_HEIGHT_PX))
+  } else if (portraitOnly || opts.fitPortrait) {
+    const target = (portraitOnly ? opts.landscape : opts.fitPortrait)!
     sheet = document.createElement('style')
     sheet.textContent = PORTRAIT_FIT_CSS
     document.head.appendChild(sheet)
-    undo.push(fitToOnePage(opts.fitPortrait, PORTRAIT_WIDTH_PX, PORTRAIT_HEIGHT_PX))
+    undo.push(fitToOnePage(target, PORTRAIT_WIDTH_PX, PORTRAIT_HEIGHT_PX))
   }
   const restore = () => {
     setDocumentTitle(original)
