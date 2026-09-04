@@ -320,8 +320,20 @@ export function OfficeView({
     const assigned = assignedCanticles(data.canticleTable, day, doc.office, isFeast)
     const eve = isEvening ? lectionary.eve : undefined
 
-    const readAt = (slot: number) =>
-      chosen[`read-${slot + 1}`] ?? (slot < all.length ? slot : -1)
+    // 기도서 「성서독서는 하나 혹은 둘을 할 수 있다」 — 셋 가운데 골라 담고,
+    // 담긴 차례대로 1독서·2독서로 매긴다. 고른 것은 자릿수로 기억한다.
+    const MAX = 2
+    const mask = chosen['readings'] ?? all.slice(0, MAX).reduce((m, _, i) => m | (1 << i), 0)
+    const on = (i: number) => (mask & (1 << i)) !== 0
+    const picked = all.map((c, i) => ({ c, i })).filter(({ i }) => on(i))
+
+    const toggle = (i: number) => {
+      let next = mask ^ (1 << i)
+      const list = all.map((_, k) => k).filter((k) => next & (1 << k))
+      if (list.length > MAX) next &= ~(1 << list[0])      // 셋째를 담으면 첫째를 뺀다
+      onChoose('readings', next)
+    }
+
     const cantAt = (slot: number) => {
       const saved = chosen[`cant-${slot + 1}`]
       if (saved !== undefined) return saved
@@ -329,34 +341,24 @@ export function OfficeView({
       return name ? data.canticles.findIndex((c) => c.name === name) : -1
     }
 
-    const slotNode = (slot: number) => {
-      const ri = readAt(slot)
-      const ci = cantAt(slot)
-      const reading = ri >= 0 ? all[ri] : undefined
+    const slotNode = ({ c, i }: { c: ReadingChoice; i: number }, n: number) => {
+      const ci = cantAt(n)
       const canticle = ci >= 0 ? data.canticles[ci] : undefined
       return (
-        <div key={`slot-${slot}`} className={slot ? 'mt-8' : undefined}>
-          {chooser(`read-${slot + 1}`, `${slot + 1}독서`, ri, [
-            ...all.map((c, i) => ({ value: i, text: `${c.slot} ${c.reference}` })),
-            { value: -1, text: '읽지 않음' },
-          ])}
-          {reading && (
-            <>
-              <ReadingBlock
-                reference={reading.reference}
-                slot={`${slot + 1}독서 · ${reading.slot}`}
-                color={day.color}
-                showText={showBibleText}
-                alternates={slot === 0 ? lectionary.alternates : undefined}
-              />
-              {outro(`out-${slot}`)}
-            </>
-          )}
-          {chooser(`cant-${slot + 1}`, '독서 후 송가', ci, [
-            ...data.canticles.map((c, i) => ({ value: i, text: canticleLabel(c) })),
+        <div key={c.key} className={n ? 'mt-8' : undefined}>
+          <ReadingBlock
+            reference={c.reference}
+            slot={`${n + 1}독서 · ${c.slot}`}
+            color={day.color}
+            showText={showBibleText}
+            alternates={i === all.length - 1 ? lectionary.alternates : undefined}
+          />
+          {outro(`out-${n}`)}
+          {chooser(`cant-${n + 1}`, '독서 후 송가', ci, [
+            ...data.canticles.map((x, k) => ({ value: k, text: canticleLabel(x) })),
             { value: -1, text: '하지 않음' },
           ])}
-          {canticle && canticleBlock(canticle, `cant-${slot}`)}
+          {canticle && canticleBlock(canticle, `cant-${n}`)}
         </div>
       )
     }
@@ -368,7 +370,30 @@ export function OfficeView({
           {lectionary.year !== 'both' && ` · ${lectionary.year}해`}
           {eve && ` · 저녁은 「${eve.label}」 정과를 씁니다`}
         </p>
-        {[0, 1].map(slotNode)}
+        <div className="no-print mb-5">
+          <span className="mb-2 block text-sm" style={{ color: 'var(--ink-muted)' }}>
+            성서독서 — 하나 혹은 둘을 고르세요
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {all.map((c, i) => (
+              <button
+                key={c.key}
+                onClick={() => toggle(i)}
+                aria-pressed={on(i)}
+                className="tap rounded-full px-4 py-1.5 text-sm"
+                style={on(i)
+                  ? { background: 'var(--accent)', color: 'var(--paper)' }
+                  : { border: '1px solid var(--rule)', color: 'var(--ink-muted)' }}
+              >
+                {c.slot}
+                <span className="ml-2 text-[0.85em]" style={{ opacity: 0.75 }}>{c.reference}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+        {picked.length
+          ? picked.map(slotNode)
+          : <p style={{ color: 'var(--ink-faint)' }}>고른 독서가 없습니다.</p>}
         {eve && (
           <div className="mt-6 border-t pt-4" style={{ borderColor: 'var(--rule)' }}>
             <p className="mb-3 text-sm" style={{ color: 'var(--accent)' }}>{eve.label}</p>

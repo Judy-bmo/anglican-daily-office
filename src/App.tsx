@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { addDays, isoDate, parseIso, toUtcDay } from './lib/churchCalendar'
 import { useAppData, useDay, useRecords, useSeasonColor, useSettings } from './lib/useApp'
+import { InstallPrompt } from './components/InstallPrompt'
 import { TodayPage } from './pages/TodayPage'
 import { OfficePage } from './pages/OfficePage'
 import { CalendarPage } from './pages/CalendarPage'
@@ -75,6 +76,7 @@ export default function App() {
 
   return (
     <div className="min-h-dvh pb-28">
+      <InstallPrompt />
       <main className="mx-auto max-w-2xl px-6 pt-10">
         {view === 'today' && (
           <TodayPage
